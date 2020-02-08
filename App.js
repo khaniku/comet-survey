@@ -4,7 +4,7 @@ import { StyleSheet, Text, View } from 'react-native';
 export default function App() {
   return (
     <View style={styles.container}>
-      <Text>Hey, i just edited this file!!!!</Text>
+      <Text style={styles.textColor}>Hey, i just edited this file!!!!</Text>
     </View>
   );
 }
@@ -16,4 +16,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  textColor : {
+    color: 'green'
+  }
 });
