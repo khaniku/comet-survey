@@ -8,7 +8,7 @@ export default {
 
   containerView: {
     flex: 1,
-    marginTop: hp('-3%'),
+    marginTop: hp('-10%'),
     backgroundColor: '#fff',
    
   },

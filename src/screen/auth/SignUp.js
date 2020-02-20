@@ -17,8 +17,9 @@ export default class SignupScreen extends Component {
             loading: false,
             user: {
                 email: '',
-                lastname: '',
-                first_name: '',
+                lastName: '',
+                firstName: '',
+                username: '',
                 password: ''
             },
             errors: {
@@ -40,15 +41,19 @@ export default class SignupScreen extends Component {
                             <Text style={ styles.error_text} >{this.state.errors.errorText}</Text>
                         ) : null}
                         <Text style={styles.normal_text}>First name</Text>
-                        <TextInput placeholder="First Name"  onChangeText={(text) => this.state.user.firstname = text}
+                        <TextInput placeholder="First Name"  onChangeText={(text) => this.state.user.firstName = text}
                                     placeholderColor="#c4c3cb" style={styles.loginFormTextInput}
                                 />
                         <Text style={styles.normal_text}>Last name</Text>
-                        <TextInput placeholder="Last Name"  onChangeText={(text) => this.state.user.lastname = text}
+                        <TextInput placeholder="Last Name"  onChangeText={(text) => this.state.user.lastName = text}
                                     placeholderColor="#c4c3cb" style={styles.loginFormTextInput}
                                 />
                         <Text style={styles.normal_text}>Email</Text>
                         <TextInput placeholder="Email"  onChangeText={(text) => this.state.user.email = text}
+                                    placeholderColor="#c4c3cb" style={styles.loginFormTextInput}
+                                />
+                        <Text style={styles.normal_text}>Username</Text>
+                        <TextInput placeholder="Username"  onChangeText={(text) => this.state.user.username = text}
                                     placeholderColor="#c4c3cb" style={styles.loginFormTextInput}
                                 />
                         <Text style={styles.normal_text}>Password</Text>
@@ -58,7 +63,7 @@ export default class SignupScreen extends Component {
                         {!this.state.loading ?
                             <ELementButton
                                 buttonStyle={styles.loginButton}
-                                onPress={() => this.onGetStarted()}
+                                onPress={() => this.signUp()}
                                 textStyle={{ color: "#FFFFFF", fontSize: hp('2.2%'), fontWeight: "bold" }}
                                 title="SIGN UP"
                             /> :
@@ -79,53 +84,48 @@ export default class SignupScreen extends Component {
     componentWillUnmount() {
     }
 
-    onGetStarted() {
+    async signUp() {
 
         if (this.state.user.email.length === 0) {
             this.setState({ errors: { showError: true, errorText: 'The Email is empty!' } });
         }
-        else if (this.state.user.first_name.length === 0) {
+        else if (this.state.user.firstName.length === 0) {
             this.setState({ errors: { showError: true, errorText: 'The First Name is empty!' } });
         }
-        else if (this.state.user.lastname.length === 0) {
+        else if (this.state.user.lastName.length === 0) {
             this.setState({ errors: { showError: true, errorText: 'The Last Name is empty!' } });
         }
+        else if (this.state.user.username.length === 0) {
+            this.setState({ errors: { showError: true, errorText: 'The Username is empty!' } });
+        }
         else {
-                // this.setState({ loading: true })
-                // let user = this.state.user;
-                // user.master_doman = user.master_doman;
-                // console.log(JSON.stringify(user));
-                // fetch("http://ubuxaapi.ubuxa.net/site/customer-signup/", {
-                //     method: 'POST',
-                //     headers: {
-                //         Accept: 'application/json',
-                //         'Content-Type': 'application/json',
-                //     },
-                //     body: JSON.stringify(user),
-                // })
-                //     .then((responseJson) => {
-                //         responseJson = responseJson._bodyText;
-                //         console.log(responseJson);
-                //         responseJson = responseJson.substring(0, responseJson.length - 4);
-                //         let data = JSON.parse(responseJson);
-                //         this.setState({ loading: false })
-                //         if (data.status === 1) {
-                //             this.setState({ errors: { showError: false, errorText: '' } });
-                //             Globals.email = this.state.user.master_email;
-                //             this.props.navigation.navigate('Validate_Code');
-                //         }
-                //         else {
-                //             // this.setState({errors:{ showError: true , errorText: data.errors.maser_email}});
-                //             if (data.errors.master_email != null)
-                //                 this.setState({ errors: { showError: true, errorText: data.errors.master_email } });
-                //             if (data.errors.master_doman != null)
-                //                 this.setState({ errors: { showError: true, errorText: data.errors.master_doman } });
-                //         }
-                //     })
-                //     .catch((error) => {
-                //         this.setState({ loading: false })
-                //         console.log(error);
-                //     });
+            this.setState({ loading: true })
+            let user = this.state.user;
+            await fetch("http://localhost:5000/api/auth/signup", {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(user),
+            })
+            .then((response) => {
+                response.json().then(responseJson => {
+                if(responseJson.success){
+                    this.setState({loading: false})
+                    this.setState({errors:{ showError: false , errorText: ''}});
+                    this.props.navigation.navigate('Home');
+                } else {
+                    this.setState({loading: false})
+                    this.setState({errors:{ showError: true , errorText: responseJson.message}});
+                }
+                });
+            })
+            .catch((error) => {
+            this.setState({loading: false})
+            this.setState({errors:{ showError: true , errorText: 'Something went wrong. Please try again!'}});
+            console.log(error);
+            });
         }
 
     }
