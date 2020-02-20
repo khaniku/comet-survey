@@ -51,11 +51,12 @@ const AppNavigator = createStackNavigator({
   Home: {
     screen: HomeScreen,
     navigationOptions: {
-      title: null,
-      headerShown: false
+      title: 'Survey',
+      //headerShown: false
     },
   },
 })
+
 
 const AuthContainer = createAppContainer(createSwitchNavigator(
   {
@@ -77,7 +78,7 @@ const AuthContainer = createAppContainer(createSwitchNavigator(
 const AppContainer = createAppContainer(AuthContainer);
 
 const persistConfig = {
-  key: "root", // name of the key for storing the data
+  key: "root0", // name of the key for storing the data
   storage: AsyncStorage // storage to use. defaults to AsyncStorage
 };
 const persistedReducer = persistReducer(persistConfig, reducers);
