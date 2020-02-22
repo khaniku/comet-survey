@@ -84,24 +84,13 @@ const persistConfig = {
 const persistedReducer = persistReducer(persistConfig, reducers);
 const store = createStore(persistedReducer, applyMiddleware(thunk));
 let persistor = persistStore(store);
-renderLoading = () => {
-  <View
-    style={{
-      flex: 1,
-      padding: 20,
-      alignContent: 'center',
-      justifyContent: 'center',
 
-    }}>
-    <ActivityIndicator size="large" color="#1275bc" />
-  </View>
-}
 
 
 export default () =>
 
   <Provider store={store}>
-    <PersistGate loading={this.renderLoading()} persistor={persistor}>
+    <PersistGate  persistor={persistor}>
       <Root>
         <StatusBar barStyle="dark-content" hidden={false} backgroundColor="transparent" translucent={true} />
         <AppContainer />
