@@ -5,6 +5,7 @@ import { createAppContainer, createSwitchNavigator } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 import LoginScreen from './screen/auth/Login.js';
 import SignupScreen from "./screen/auth/SignUp.js";
+import TestScreen from "./screen/test.js";
 import ResetPasswordScreen from "./screen/auth/ResetPassword.js";
 import { Provider } from 'react-redux';
 import { createStore, applyMiddleware } from "redux";
@@ -21,7 +22,15 @@ import HomeScreen from "./screen/Home";
 Asset;
 
 const AuthStackNavigator = createStackNavigator({
-
+  Test: {
+    screen: TestScreen,
+    navigationOptions: {
+      title: null,
+      headerStyle: {
+        backgroundColor: 'none',
+      },
+    },
+  },
   Login: {
     screen: LoginScreen,
     navigationOptions: {
@@ -78,7 +87,7 @@ const AuthContainer = createAppContainer(createSwitchNavigator(
 const AppContainer = createAppContainer(AuthContainer);
 
 const persistConfig = {
-  key: "root0", // name of the key for storing the data
+  key: "root999", // name of the key for storing the data
   storage: AsyncStorage // storage to use. defaults to AsyncStorage
 };
 const persistedReducer = persistReducer(persistConfig, reducers);
