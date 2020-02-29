@@ -1,3 +1,11 @@
+import React, { Component } from 'react';
+import { View, Image, FlatList, Dimensions, TouchableOpacity} from 'react-native';
+import { Container, Header, Content, Card, CardItem, Thumbnail, Title, Text, Button, Icon, Left, Right, Body } from 'native-base';
+import { SearchBar, CheckBox} from 'react-native-elements';
+import Modal from "react-native-modal";
+import DateTimePicker from "react-native-modal-datetime-picker";
+
+
 const surveys = [
   {
     id: 1,
@@ -19,17 +27,19 @@ const surveys = [
  },
 ]
 
-import React, { Component } from 'react';
-import { View, Image, FlatList, Dimensions} from 'react-native';
-import { Container, Header, Content, Card, CardItem, Thumbnail, Text, Button, Icon, Left, Right, Body } from 'native-base';
-import { SearchBar } from 'react-native-elements';
-
-
 const DEVICE_WIDTH = Dimensions.get('window').width;
 const { width, height } = Dimensions.get('window');
 export default class PendingScreen extends Component {
   state = {
+    surveys: surveys,
     search: '',
+    filterModal: false,
+    addModal: false,
+    checked: false,
+    dateVisible: false,
+    date: '',
+    todayCheck: false,
+    yesterdayCheck: false
   };
 
   updateSearch = search => {
@@ -37,14 +47,108 @@ export default class PendingScreen extends Component {
   };
 
   resetTaskSearch () {
-    //this.setState({notStarted: temp1, inProgress: temp2, completed: temp3})
-    //alert(1234)
+    
+  }
+
+  openFilter() {
+    this.setState({ filterModal: true })
+  }
+
+  showDatePicker = () => {
+    this.setState({ dateVisible: true });
+};
+
+hideDatePicker = () => {
+    this.setState({ dateVisible: false });
+};
+
+handleDatePicked = date => {
+  
+    this.hideDatePicker();
+};
+
+resetList = () => {
+  
 }
+
+searchFilterFunction = text => {    
+  const newData = this.state.surveys.filter(item => {      
+    const itemData = `${item.business_name.toUpperCase()}`;
+    const textData = text.toUpperCase();
+    console.log("new "+textData)
+
+     return itemData.indexOf(textData) > -1;    
+  }); 
+
+  this.setState({ search: text});    
+};
 
   render() {
     const { search } = this.state;
     return (
       <Container>
+        <Modal
+            isVisible={this.state.filterModal}
+            style={{ backgroundColor: '#1275bcef', borderRadius: 10, marginHorizontal: 30, marginVertical: (height - 400) / 2 }}
+            deviceHeight={height}
+            backdropColor='transparent'
+            onBackdropPress={() => this.setState({ filterModal: false })}
+        >
+            <View style={{ marginTop: 22, height: 400, paddingVertical: 15, paddingHorizontal: 20 }}>
+              <View>
+                <Text style={{ color: '#fff', textAlign: 'center', fontSize: 18, }}>Filters</Text>
+                <Icon style={{ color: 'white', position: 'absolute', top: 0, right: 0 }} name='clear' type='MaterialIcons' onPress={() => this.setState({ filterModal: false })} />
+                <View style={{ marginBottom: 10 }}>
+                    <Text style={{ fontWeight: '700', marginBottom: 10, color: '#fff' }}>By time</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <Text style={{ color: '#fff' }}>Today</Text>
+                        <CheckBox
+                            containerStyle={{ borderWidth: 0, paddingLeft: 0, backgroundColor: 'transparent', marginLeft: 0, marginRight: 0, padding: 0 }}
+                            textStyle={{ fontWeight: 'normal', color: '#fff' }}
+                            iconRight={true}
+                            right
+                            checkedColor='#fff'
+                            uncheckedColor='#fff'
+                            onPress={() => this.filterByDate(today, 'today')}
+                            checked={this.state.todayCheck}
+                        />
+                    </View>
+
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <Text style={{ color: '#fff' }}>Tomorrow</Text>
+                        <CheckBox
+                            containerStyle={{ borderWidth: 0, paddingLeft: 0, backgroundColor: 'transparent', marginLeft: 0, marginRight: 0, padding: 0 }}
+                            textStyle={{ fontWeight: 'normal', color: '#fff' }}
+                            iconRight={true}
+                            right
+                            checkedColor='#fff'
+                            uncheckedColor='#fff'
+                            onPress={() => this.filterByDate(yesterday, 'yesterday')}
+                            checked={this.state.yesterdayCheck}
+                        />
+                    </View>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <Text style={{ color: '#fff' }}>Specific date</Text>
+                        <TouchableOpacity onPress={this.showDatePicker} style={{ alignItems: 'center', flexDirection: 'row', flex: 1, justifyContent: 'flex-end' }}>
+                        {this.state.resetList !== false ?
+                            <Icon style={{ color: 'white', position: 'absolute', top: 1, right: 40, fontSize: 22}} name='times-circle' type='FontAwesome' onPress={() => this.resetList()} />
+                            : null
+                        }
+                        <Icon style={{ color: '#fff', fontSize: 24, marginRight: 3 }} name='calendar' type='MaterialCommunityIcons' />
+                        </TouchableOpacity>
+                        <DateTimePicker
+                            isVisible={this.state.dateVisible}
+                            onConfirm={this.handleDatePicked}
+                            onCancel={this.hideDatePicker}
+                            mode='date'
+                        />
+                    </View>
+
+                </View>
+                
+            </View>
+          </View>
+        </Modal>
         <View style={{ flexDirection: 'row', padding: 10, alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, marginTop: 20 }}>
           <SearchBar
               placeholder='Search survey'
@@ -64,7 +168,7 @@ export default class PendingScreen extends Component {
         </View>
         <Content>
         {
-          surveys.map((ele, index) => 
+          this.state.surveys.map((ele, index) => 
           
           <Card style={{flex: 0, marginBottom: 12}} key={ele.id}>
             <CardItem>

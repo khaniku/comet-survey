@@ -5,7 +5,6 @@ import { createAppContainer, createSwitchNavigator } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 import LoginScreen from './screen/auth/Login.js';
 import SignupScreen from "./screen/auth/SignUp.js";
-import TestScreen from "./screen/test.js";
 import ResetPasswordScreen from "./screen/auth/ResetPassword.js";
 import { Provider } from 'react-redux';
 import { createStore, applyMiddleware } from "redux";
@@ -18,19 +17,13 @@ import { PersistGate } from "redux-persist/integration/react";
 import { Asset } from 'expo-asset';
 import AuthLoadingScreen from "./screen/auth/AuthLoading";
 import HomeScreen from "./screen/Home";
+import { Provider as PaperProvider } from 'react-native-paper';
+import { NavigationContainer } from '@react-navigation/native';
 
 Asset;
 
 const AuthStackNavigator = createStackNavigator({
-  Test: {
-    screen: TestScreen,
-    navigationOptions: {
-      title: null,
-      headerStyle: {
-        backgroundColor: 'none',
-      },
-    },
-  },
+
   Login: {
     screen: LoginScreen,
     navigationOptions: {
@@ -61,7 +54,7 @@ const AppNavigator = createStackNavigator({
     screen: HomeScreen,
     navigationOptions: {
       title: 'Survey',
-      //headerShown: false
+      headerShown: false
     },
   },
 })
@@ -87,12 +80,13 @@ const AuthContainer = createAppContainer(createSwitchNavigator(
 const AppContainer = createAppContainer(AuthContainer);
 
 const persistConfig = {
-  key: "root999", // name of the key for storing the data
+  key: "root", // name of the key for storing the data
   storage: AsyncStorage // storage to use. defaults to AsyncStorage
 };
 const persistedReducer = persistReducer(persistConfig, reducers);
 const store = createStore(persistedReducer, applyMiddleware(thunk));
 let persistor = persistStore(store);
+
 renderLoading = () => {
   <View
     style={{
@@ -110,10 +104,14 @@ renderLoading = () => {
 export default () =>
 
   <Provider store={store}>
-    <PersistGate loading={this.renderLoading()} persistor={persistor}>
+    <PersistGate loading={renderLoading()} persistor={persistor}>
       <Root>
         <StatusBar barStyle="dark-content" hidden={false} backgroundColor="transparent" translucent={true} />
-        <AppContainer />
+        <PaperProvider>
+          <NavigationContainer>
+            <AppContainer />
+          </NavigationContainer>
+        </PaperProvider>
       </Root>
     </PersistGate>
   </Provider>

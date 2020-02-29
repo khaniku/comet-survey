@@ -126,6 +126,7 @@ class LoginScreen extends Component {
               this.setState({loading: false})
               SecureStore.setItemAsync('access_token', responseJson.accessToken);
               this.props.Auth(responseJson.accessToken);
+              this.props.User(responseJson);
               this.setState({errors:{ showError: false , errorText: ''}});
               this.props.navigation.navigate('Home');
             });

@@ -11,7 +11,6 @@ export default {
     },
     headerStyle:{
         backgroundColor: 'white' ,
-        marginTop:hp('3%'),
         height: hp('6%'),
         borderBottomWidth: 0,
         shadowOffset: {height: 0, width: 0},

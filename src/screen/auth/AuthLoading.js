@@ -25,7 +25,7 @@ class AuthLoadingScreen extends React.Component {
     // This will switch to the App screen or Auth screen and this loading
     // screen will be unmounted and thrown away.
     this.props.navigation.navigate(userToken ? 'Home' : 'Auth');
-    if(await this.props.accessToken == null){
+    if(this.props.accessToken == null){
       SecureStore.deleteItemAsync('access_token')
       this.props.navigation.navigate('Auth')
     }
@@ -42,7 +42,6 @@ class AuthLoadingScreen extends React.Component {
 }
 
 const mapStateToProps = state => {
-
   return {accessToken: state.accessToken}
 }
 

@@ -20,7 +20,8 @@ export default class SignupScreen extends Component {
                 lastName: '',
                 firstName: '',
                 username: '',
-                password: ''
+                password: '',
+                role: 'Surveyor'
             },
             errors: {
                 errorText: '',
