@@ -40,20 +40,6 @@ export default function DrawerContent(props, user, dispatch) {
           />
           <Title style={styles.title}>{user.firstName} {user.lastName}</Title>
           <Caption style={styles.caption}>{user.role[0].authority}</Caption>
-          {/* <View style={styles.row}>
-            <View style={styles.section}>
-              <Paragraph style={[styles.paragraph, styles.caption]}>
-                202
-              </Paragraph>
-              <Caption style={styles.caption}>Following</Caption>
-            </View>
-            <View style={styles.section}>
-              <Paragraph style={[styles.paragraph, styles.caption]}>
-                159
-              </Paragraph>
-              <Caption style={styles.caption}>Followers</Caption>
-            </View>
-          </View> */}
         </View>
         <Drawer.Section style={styles.drawerSection}>
           <DrawerItem
@@ -65,15 +51,15 @@ export default function DrawerContent(props, user, dispatch) {
               />
             )}
             label="Profile"
-            onPress={() => {}}
+            onPress={() => props.navigation.navigate('profile')}
           />
-          <DrawerItem
+          {/* <DrawerItem
             icon={({ color, size }) => (
               <MaterialCommunityIcons name="tune" color={color} size={size} />
             )}
             label="Settings"
             onPress={() => {}}
-          />
+          /> */}
           <DrawerItem
             icon={({ color, size }) => (
               <MaterialCommunityIcons
@@ -86,7 +72,7 @@ export default function DrawerContent(props, user, dispatch) {
             onPress={() => {logOut(props, dispatch)}}
           />
         </Drawer.Section>
-        <Drawer.Section title="Preferences">
+        {/* <Drawer.Section title="Preferences">
           <TouchableRipple onPress={() => {}}>
             <View style={styles.preference}>
               <Text>Dark Theme</Text>
@@ -95,7 +81,7 @@ export default function DrawerContent(props, user, dispatch) {
               </View>
             </View>
           </TouchableRipple>
-        </Drawer.Section>
+        </Drawer.Section> */}
       </View>
     </DrawerContentScrollView>
   );

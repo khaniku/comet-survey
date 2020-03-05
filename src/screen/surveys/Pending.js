@@ -85,7 +85,7 @@ searchFilterFunction = text => {
 
   render() {
     const { search } = this.state;
-    return (
+     return (
       <Container>
         <Modal
             isVisible={this.state.filterModal}
@@ -169,29 +169,30 @@ searchFilterFunction = text => {
         <Content>
         {
           this.state.surveys.map((ele, index) => 
-          
-          <Card style={{flex: 0, marginBottom: 12}} key={ele.id}>
-            <CardItem>
-              <Left>
-              <Image  resizeMode="cover" source={{uri: ele.background_photo}} style={{height: 50, width: 100}}/>
-                <Body>
-                  <Text>{ele.business_name}</Text>
-                  <Text note>{ele.description}</Text>
-                </Body>
-              </Left>
-            </CardItem>
-            
-            <CardItem>
-            <View style={{flexDirection: 'row'}}>
-              <Left>
-                  <Text note>Requester: {ele.name}</Text>
-              </Left>
-              <Right>
-                <Text note>Due Date: {ele.due_date}</Text>
-              </Right>
-            </View>
-            </CardItem>
-          </Card> 
+            <Card style={{flex: 0, marginBottom: 12}} key={ele.id}>
+              <TouchableOpacity onPress={() => { this.props.navigation.push('Details', {surveyId: ele.id, title: ele.business_name}) }}>
+              <CardItem>
+                <Left>
+                <Image  resizeMode="cover" source={{uri: ele.background_photo}} style={{height: 50, width: 100}}/>
+                  <Body>
+                    <Text>{ele.business_name}</Text>
+                    <Text note>{ele.description}</Text>
+                  </Body>
+                </Left>
+              </CardItem>
+              
+              <CardItem>
+              <View style={{flexDirection: 'row'}}>
+                <Left>
+                    <Text note>Requester: {ele.name}</Text>
+                </Left>
+                <Right>
+                  <Text note>Due Date: {ele.due_date}</Text>
+                </Right>
+              </View>
+              </CardItem>
+            </TouchableOpacity> 
+          </Card>
           
 
           )}

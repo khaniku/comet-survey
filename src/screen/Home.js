@@ -17,6 +17,8 @@ import { useDispatch } from "react-redux";
 import SignupScreen from './auth/SignUp';
 import ResetPasswordScreen from './auth/ResetPassword';
 import AuthLoadingScreen from './auth/AuthLoading';
+import SurveyDetailsScreen from './surveyDetails'
+import Profile from './profile'
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
@@ -32,13 +34,30 @@ function Login() {
 }
 
 
+function Surveys() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen name="Survey" options={{
+        headerShown: false
+        }}
+        component={Survey} 
+      />
+      <Stack.Screen name="Details" component={SurveyDetailsScreen} />
+      <Stack.Screen name="profile" options={{
+        headerShown: false
+        }} component={Profile} />
+    </Stack.Navigator>
+  );
+}
+
+
 export default function App() {
   const user = useSelector(state => state.user);
   const dispatch = useDispatch();
   
   return (
     <Drawer.Navigator drawerContent={props => DrawerContent(props, user, dispatch)}>
-      <Drawer.Screen name="Home" component={Survey} />
+      <Drawer.Screen name="Home" component={Surveys} />
     </Drawer.Navigator>
   );
 }
