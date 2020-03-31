@@ -20,6 +20,7 @@ import {User, Auth} from '../../actions';
 import * as SecureStore from 'expo-secure-store';
 import SignupScreen from '../../screen/auth/SignUp';
 import ResetPasswordScreen from '../../screen/auth/ResetPassword';
+import Login from '../../screen/auth/Login';
 
 
 export default function DrawerContent(props, user, dispatch) {
@@ -34,7 +35,7 @@ export default function DrawerContent(props, user, dispatch) {
           <Avatar.Image
             source={{
               uri:
-                'https://ui-avatars.com/api/?name=Emeka+Kanikwu?rounded=true',
+                'https://ui-avatars.com/api/?name='+user.firstName+' '+user.lastName+'?rounded=true',
             }}
             size={50}
           />
@@ -87,9 +88,11 @@ export default function DrawerContent(props, user, dispatch) {
   );
 }
 async function logOut(props, dispatch) {
-  props.navigation.navigate('Auth')
-  
-}
+    props.navigation.replace('Login')
+    SecureStore.deleteItemAsync('access_token')
+    //dispatch(User(null))
+    dispatch(Auth(null)) 
+  }
 
 
 const styles = StyleSheet.create({

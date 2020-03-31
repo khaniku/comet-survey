@@ -6,8 +6,7 @@ import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-nativ
     },
     headerStyle:{
         backgroundColor: 'white' ,
-        marginTop:hp('2%'),
-        height: hp('6%'),
+      
         borderBottomWidth: 0,
         shadowOffset: {height: 0, width: 0},
         shadowOpacity: 0,

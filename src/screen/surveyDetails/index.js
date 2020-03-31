@@ -11,6 +11,7 @@ import Accordion from 'react-native-collapsible/Accordion';
 import Constants from 'expo-constants';
 import { MaterialIcons } from '@expo/vector-icons';
 import { TextInput, Button } from 'react-native-paper';
+import { Container, Header, Left, Body, Right, Icon, Title } from 'native-base';
 
 const fields = [{
     name: 'Height',
@@ -40,12 +41,31 @@ export default class Details extends Component {
     title: ''
   };
 
-//   async componentDidMount(){
-//     let { navigation } = this.props;
-//     let title = navigation.getParam('title');
-//     // this.setState({title: title});
-//     console.log(navigation.getParam)
-// }
+  // header = ({ scene, previous, navigation }) => {
+  //   const { options } = scene.descriptor;
+  //   const title =
+  //     options.headerTitle !== undefined
+  //       ? options.headerTitle
+  //       : options.title !== undefined
+  //       ? options.title
+  //       : scene.route.name;
+  
+  //   return (
+  //     <MyHeader
+  //       title={title}
+  //       leftButton={
+  //         previous ? <MyBackButton onPress={navigation.goBack} /> : undefined
+  //       }
+  //       style={options.headerStyle}
+  //     />
+  //   );
+  // };
+
+  async componentDidMount(){
+    let { route } = this.props;
+    let param = route.params;
+    this.setState({title: param.title});
+}
   
 
   _renderHeader = (section, index) => {
@@ -93,8 +113,7 @@ export default class Details extends Component {
 
   render() {
     return (
-      <View>
-        {/* <Text>{this.state.title}</Text> */}
+      <Container>
         <Accordion
           sections={SECTIONS}
           activeSections={this.state.activeSections}
@@ -103,7 +122,7 @@ export default class Details extends Component {
           renderContent={this._renderContent}
           onChange={this._updateSections}
         />
-    </View>
+      </Container>
     );
   }
 }
@@ -129,11 +148,13 @@ const styles = StyleSheet.create({
     header: {
       backgroundColor: '#fff',
       flexDirection: 'row',
-    justifyContent:'space-between',
-    height:56,
-    paddingLeft:25,
-    paddingRight:18,
-    alignItems:'center',
+      justifyContent:'space-between',
+      height:56,
+      paddingLeft:25,
+      paddingRight:18,
+      alignItems:'center',
+      borderBottomWidth :2,
+      borderBottomColor: '#a4a4a4',
     },
     headerText: {
       textAlign: 'left',

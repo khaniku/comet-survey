@@ -9,6 +9,8 @@ import { TextInput } from 'react-native-paper';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { connect } from 'react-redux';
 import * as actions from '../../actions';
+import { updateUser } from "../../actions/api";
+
 import { Caption } from 'react-native-paper';
 
 import styles from './style';
@@ -28,13 +30,11 @@ class Profile extends React.Component {
             fullname: this.props.user.firstName+" "+this.props.user.lastName,
             role: this.props.user.role[0].authority,
             profile_image: '',
-            isLoading: true,
             isError: {
                 errorText: '',
                 showError: false,
             },
-            loading: true,
-            activityIndicator: { image: false, other: false }
+            loading: false,
         }
 
         /*this.handlelastName = this.handlelastName.bind(this);
@@ -46,8 +46,19 @@ class Profile extends React.Component {
         // this.accessToken = this.props.accessToken;
     }
 
-    async updateProfile(id, username, firstname, lastName, accessToken) {
-        
+    async updateProfile() {
+        this.setState({loading: true})
+        let that = this;
+        await updateUser(this.props.user.userId, this.state.firstname, this.state.lastName, this.props.user.accessToken).then(function (data) {
+            if (data !== null) {
+                that.setState({loading: false})
+                that.props.updateUser(that.state.firstname, that.state.lastName);
+                that.setState({isError:{ showError: false , errorText: ''}});
+            }else{
+                that.setState({loading: false})
+                that.setState({errors:{ showError: true , errorText: 'Something went wrong, try again later!'}});
+            }
+        })
     }
 
     async updateProfileImage(id, accessToken) {
@@ -72,7 +83,6 @@ class Profile extends React.Component {
 
         if (!result.cancelled) {
             this.setState({ profile_image: result.uri });
-            //this.updateProfileImage(this.userIdentity, this.accessToken)
         }
     };
 
@@ -103,11 +113,7 @@ class Profile extends React.Component {
                             <Ionicons name="ios-arrow-back" size={32} color="#1275bc" />
                             </Button>
                         </Left>
-                        <Body style={{ flex: 3, justifyContent: 'center' }}>
-                            <Title style={styles.titleStyle} >
-                                Profile
-                        </Title>
-                        </Body>
+                        
                         <Right style={{ flex: 1 }}>
                         </Right>
                     </Header>
@@ -115,7 +121,7 @@ class Profile extends React.Component {
                         <View style={{ alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
                             <Avatar
                                 size={wp('30%')}
-                                source={this.state.profile_image !== null || this.state.profile_image !== '' ? { uri: 'https://ui-avatars.com/api/?name=Emeka+Kanikwu?rounded=true' } : {uri: 'https://ui-avatars.com/api/?name=Emeka+Kanikwu?rounded=true'}}
+                                source={this.state.profile_image !== null || this.state.profile_image !== '' ? { uri: 'https://ui-avatars.com/api/?name='+this.props.user.firstName+' '+this.props.user.lastName+'?rounded=true' } : {uri: 'https://ui-avatars.com/api/?name='+this.props.user.firstName+' '+this.props.user.lastName+'?rounded=true'}}
                                 rounded
                                 containerStyle={{ padding: 5, borderColor: '#1275bc', borderWidth: 1.5 }}
                                 showEditButton={true}
@@ -130,18 +136,18 @@ class Profile extends React.Component {
                                     }
                                 }
                             />
-                            <Text style={{ fontWeight: '600', fontSize: 18, color: '#555', marginTop: 7 }}>{this.state.fullname}</Text>
+                            <Text style={{ fontWeight: '600', fontSize: 18, color: '#555', marginTop: 7 }}>{this.props.user.firstName+" "+this.props.user.lastName}</Text>
                             <Caption style={styles.caption}>{this.state.role}</Caption>
                         </View>
                         {this.state.isError.showError ? (
                             <Text style={styles.error_text} >{this.state.isError.errorText}</Text>
                         ) : null}
-                        <Input label='First Name' defaultValue={this.state.firstname} onChangeText={this.handleFirstName} inputStyle={{}} inputContainerStyle={{ borderRadius: 10, paddingHorizontal: 10, borderWidth: 1, borderColor: '#9393933f', height: 50 }} labelStyle={{ color: '#5557', fontSize: 12, fontWeight: '600', marginBottom: 7 }} containerStyle={{ marginBottom: 15 }} />
-                        <Input label='Last Name' defaultValue={this.state.lastName} onChangeText={this.handlelastName} inputStyle={{}} inputContainerStyle={{ borderRadius: 10, paddingHorizontal: 10, borderWidth: 1, borderColor: '#9393933f', height: 50 }} labelStyle={{ color: '#5557', fontSize: 12, fontWeight: '600', marginBottom: 7 }} containerStyle={{ marginBottom: 15 }} />
+                        <Input label='First Name' defaultValue={this.props.user.firstName} onChangeText={this.handleFirstName} inputStyle={{}} inputContainerStyle={{ borderRadius: 10, paddingHorizontal: 10, borderWidth: 1, borderColor: '#9393933f', height: 50 }} labelStyle={{ color: '#5557', fontSize: 12, fontWeight: '600', marginBottom: 7 }} containerStyle={{ marginBottom: 15 }} />
+                        <Input label='Last Name' defaultValue={this.props.user.lastName} onChangeText={this.handlelastName} inputStyle={{}} inputContainerStyle={{ borderRadius: 10, paddingHorizontal: 10, borderWidth: 1, borderColor: '#9393933f', height: 50 }} labelStyle={{ color: '#5557', fontSize: 12, fontWeight: '600', marginBottom: 7 }} containerStyle={{ marginBottom: 15 }} />
                         <Input label='Username'  disabled={true} value={this.state.username} editable={false} selectTextOnFocus={false} inputStyle={{}} inputContainerStyle={{ borderRadius: 10, paddingHorizontal: 10, borderWidth: 1, borderColor: '#9393933f', height: 50 }} labelStyle={{ color: '#5557', fontSize: 12, fontWeight: '600', marginBottom: 7 }} containerStyle={{ marginBottom: 15 }} />
                         <Input label='Email Address' disabled={true} value={this.state.email} editable={false} selectTextOnFocus={false} inputStyle={{}} inputContainerStyle={{ borderRadius: 10, paddingHorizontal: 10, borderWidth: 1, borderColor: '#9393933f', height: 50 }} labelStyle={{ color: '#5557', fontSize: 12, fontWeight: '600', marginBottom: 7 }} containerStyle={{ marginBottom: 15 }} />
                         <Button block onPress={() => { this.updateProfile() }} style={{ backgroundColor: '#1275bc', marginHorizontal: 10, borderRadius: 15, height: 50, marginTop: 20 }}>
-                            {this.state.activityIndicator.other == false ?
+                            {this.state.loading == false ?
                                 <Text style={{ color: '#fff', fontWeight: '700', fontSize: 18 }}>SAVE</Text>
                                 : <ActivityIndicator />
                             }
