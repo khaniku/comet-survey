@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, AsyncStorage, StatusBar, ActivityIndicator } from 'react-native';
+import { Platform, StyleSheet, Text, View, AsyncStorage, StatusBar, ActivityIndicator } from 'react-native';
 import { Root, StyleProvider } from "native-base";
 import { createAppContainer, createSwitchNavigator } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
@@ -115,7 +115,7 @@ export default () =>
   <Provider store={store}>
     <PersistGate loading={renderLoading()} persistor={persistor}>
       <Root>
-        <StatusBar barStyle="dark-content" hidden={false} backgroundColor="transparent" translucent={true} />
+        <StatusBar barStyle="dark-content" hidden={true} backgroundColor="transparent" translucent={true} />
         <PaperProvider>
           <NavigationContainer>
             <AppContainer />

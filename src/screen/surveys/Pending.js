@@ -204,10 +204,10 @@ searchFilterFunction = text => {
               <TouchableOpacity onPress={() => { this.props.navigation.push('Details', {surveyId: ele.id, title: ele.business_name}) }}>
               <CardItem>
                 <Left>
-                <Image  resizeMode="cover" source={{uri: ele.background_photo}} style={{height: 50, width: 100}}/>
+                {/* <Image  resizeMode="cover" source={{uri: ele.background_photo}} style={{height: 50, width: 100}}/> */}
                   <Body>
                     <Text>{ele.business_name}</Text>
-                    <Text note>{ele.description}</Text>
+                    {/* <Text note>{ele.description}</Text> */}
                   </Body>
                 </Left>
               </CardItem>

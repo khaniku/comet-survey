@@ -1,5 +1,5 @@
-//let url = "http://172.20.10.6:5000";
-let url = "http://localhost:5000";
+let url = "http://192.168.1.108:5000";
+//let url = "http://localhost:5000";
 export function login(usernameOrEmail, password){
     return fetch("http://localhost:5000/auth/signin", {
       method: 'POST',
