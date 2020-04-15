@@ -8,6 +8,7 @@ import { withNavigation } from 'react-navigation';
 import Moment from 'moment';
 import {connect} from 'react-redux';
 import {fetchSurveys} from '../../actions/api'
+import { ActivityIndicator } from 'react-native-paper';
 const today = new Date();
 const tomorrow = today.setDate(today.getDate() + 1);
 
@@ -129,119 +130,133 @@ searchFilterFunction = text => {
 
   render() {
     const { search } = this.state;
-     return (
-      <Container>
-        {/* <StatusBar barStyle="dark-content" hidden={true}  /> */}
-        <Modal
-            isVisible={this.state.filterModal}
-            style={{ backgroundColor: '#1275bcef', borderRadius: 10, marginHorizontal: 30, marginVertical: (height - 400) / 2 }}
-            deviceHeight={height}
-            backdropColor='transparent'
-            onBackdropPress={() => this.setState({ filterModal: false })}
-        >
-            <View style={{ marginTop: 22, height: 400, paddingVertical: 15, paddingHorizontal: 20 }}>
-              <View>
-                <Text style={{ color: '#fff', textAlign: 'center', fontSize: 18, }}>Filters</Text>
-                <Icon style={{ color: 'white', position: 'absolute', top: 0, right: 0 }} name='clear' type='MaterialIcons' onPress={() => this.setState({ filterModal: false })} />
-                <View style={{ marginBottom: 10 }}>
-                    <Text style={{ fontWeight: '700', marginBottom: 10, color: '#fff' }}>By time</Text>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <Text style={{ color: '#fff' }}>Today</Text>
-                        <CheckBox
-                            containerStyle={{ borderWidth: 0, paddingLeft: 0, backgroundColor: 'transparent', marginLeft: 0, marginRight: 0, padding: 0 }}
-                            textStyle={{ fontWeight: 'normal', color: '#fff' }}
-                            iconRight={true}
-                            right
-                            checkedColor='#fff'
-                            uncheckedColor='#fff'
-                            onPress={() => this.filterByDate(today, 'today')}
-                            checked={this.state.todayChecked}
-                        />
-                    </View>
+    if(!this.state.loading){
+      if(this.state.surveys !== null){
+        return <Container>
+                  <Modal
+                      isVisible={this.state.filterModal}
+                      style={{ backgroundColor: '#1275bcef', borderRadius: 10, marginHorizontal: 30, marginVertical: (height - 400) / 2 }}
+                      deviceHeight={height}
+                      backdropColor='transparent'
+                      onBackdropPress={() => this.setState({ filterModal: false })}
+                  >
+                      <View style={{ marginTop: 22, height: 400, paddingVertical: 15, paddingHorizontal: 20 }}>
+                        <View>
+                          <Text style={{ color: '#fff', textAlign: 'center', fontSize: 18, }}>Filters</Text>
+                          <Icon style={{ color: 'white', position: 'absolute', top: 0, right: 0 }} name='clear' type='MaterialIcons' onPress={() => this.setState({ filterModal: false })} />
+                          <View style={{ marginBottom: 10 }}>
+                              <Text style={{ fontWeight: '700', marginBottom: 10, color: '#fff' }}>By time</Text>
+                              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                                  <Text style={{ color: '#fff' }}>Today</Text>
+                                  <CheckBox
+                                      containerStyle={{ borderWidth: 0, paddingLeft: 0, backgroundColor: 'transparent', marginLeft: 0, marginRight: 0, padding: 0 }}
+                                      textStyle={{ fontWeight: 'normal', color: '#fff' }}
+                                      iconRight={true}
+                                      right
+                                      checkedColor='#fff'
+                                      uncheckedColor='#fff'
+                                      onPress={() => this.filterByDate(today, 'today')}
+                                      checked={this.state.todayChecked}
+                                  />
+                              </View>
 
-                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <Text style={{ color: '#fff' }}>Tomorrow</Text>
-                        <CheckBox
-                            containerStyle={{ borderWidth: 0, paddingLeft: 0, backgroundColor: 'transparent', marginLeft: 0, marginRight: 0, padding: 0 }}
-                            textStyle={{ fontWeight: 'normal', color: '#fff' }}
-                            iconRight={true}
-                            right
-                            checkedColor='#fff'
-                            uncheckedColor='#fff'
-                            onPress={() => this.filterByDate(tomorrow, 'tomorrow')}
-                            checked={this.state.tomorrowChecked}
-                        />
+                              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                                  <Text style={{ color: '#fff' }}>Tomorrow</Text>
+                                  <CheckBox
+                                      containerStyle={{ borderWidth: 0, paddingLeft: 0, backgroundColor: 'transparent', marginLeft: 0, marginRight: 0, padding: 0 }}
+                                      textStyle={{ fontWeight: 'normal', color: '#fff' }}
+                                      iconRight={true}
+                                      right
+                                      checkedColor='#fff'
+                                      uncheckedColor='#fff'
+                                      onPress={() => this.filterByDate(tomorrow, 'tomorrow')}
+                                      checked={this.state.tomorrowChecked}
+                                  />
+                              </View>
+                              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                                  <Text style={{ color: '#fff' }}>Specific date</Text>
+                                  <TouchableOpacity onPress={this.showDatePicker} style={{ alignItems: 'center', flexDirection: 'row', flex: 1, justifyContent: 'flex-end' }}>
+                                  {this.state.resetList ?
+                                      <Icon style={{ color: 'white', position: 'absolute', top: 1, right: 40, fontSize: 22}} name='times-circle' type='FontAwesome' onPress={() => this.resetSurveySearch()} />
+                                      : null
+                                  }
+                                  <Icon style={{ color: '#fff', fontSize: 24, marginRight: 3 }} name='calendar' type='MaterialCommunityIcons' />
+                                  </TouchableOpacity>
+                                  <DateTimePicker
+                                      isVisible={this.state.dateVisible}
+                                      onConfirm={this.handleDatePicked}
+                                      onCancel={this.hideDatePicker}
+                                      mode='date'
+                                  />
+                              </View>
+                          </View>
+                      </View>
                     </View>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <Text style={{ color: '#fff' }}>Specific date</Text>
-                        <TouchableOpacity onPress={this.showDatePicker} style={{ alignItems: 'center', flexDirection: 'row', flex: 1, justifyContent: 'flex-end' }}>
-                        {this.state.resetList ?
-                            <Icon style={{ color: 'white', position: 'absolute', top: 1, right: 40, fontSize: 22}} name='times-circle' type='FontAwesome' onPress={() => this.resetSurveySearch()} />
-                            : null
-                        }
-                        <Icon style={{ color: '#fff', fontSize: 24, marginRight: 3 }} name='calendar' type='MaterialCommunityIcons' />
-                        </TouchableOpacity>
-                        <DateTimePicker
-                            isVisible={this.state.dateVisible}
-                            onConfirm={this.handleDatePicked}
-                            onCancel={this.hideDatePicker}
-                            mode='date'
-                        />
-                    </View>
-
+                  </Modal>
+              <View style={{ flexDirection: 'row', padding: 10, alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, marginTop: 20 }}>
+                <SearchBar
+                    placeholder='Search survey'
+                    round
+                    onChangeText={text => this.searchFilterFunction(text) }
+                    value={this.state.search}
+                    onClear={text => this.resetSurveySearch()}
+                    containerStyle={{ backgroundColor: 'transparent', width: width * 0.7, marginRight: 10, borderBottomWidth: 0, borderTopWidth: 0, padding: 0, borderColor: 'transparent' }}
+                    inputContainerStyle={{ backgroundColor: 'transparent', borderWidth: 1, borderBottomWidth: 1, borderColor: '#939393', height: 40, borderRadius: 5 }}
+                    inputStyle={{ fontSize: 12 }}
+                    autoCorrect={false}
+                />
+                <View style={{ flexDirection: 'row', alignItems: 'center', }}>
+                    <Text style={{ marginRight: 10 }}>Filter</Text>
+                    <Icon name='filter-list' type='MaterialIcons' style={{ color: '#1275bc' }} onPress={() => this.openFilter()} />
                 </View>
-                
-            </View>
-          </View>
-        </Modal>
-        <View style={{ flexDirection: 'row', padding: 10, alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, marginTop: 20 }}>
-          <SearchBar
-              placeholder='Search survey'
-              round
-              onChangeText={text => this.searchFilterFunction(text) }
-              value={this.state.search}
-              onClear={text => this.resetSurveySearch()}
-              containerStyle={{ backgroundColor: 'transparent', width: width * 0.7, marginRight: 10, borderBottomWidth: 0, borderTopWidth: 0, padding: 0, borderColor: 'transparent' }}
-              inputContainerStyle={{ backgroundColor: 'transparent', borderWidth: 1, borderBottomWidth: 1, borderColor: '#939393', height: 40, borderRadius: 5 }}
-              inputStyle={{ fontSize: 12 }}
-              autoCorrect={false}
-          />
-          <View style={{ flexDirection: 'row', alignItems: 'center', }}>
-              <Text style={{ marginRight: 10 }}>Filter</Text>
-              <Icon name='filter-list' type='MaterialIcons' style={{ color: '#1275bc' }} onPress={() => this.openFilter()} />
-          </View>
-        </View>
-        <Content>
-        {
-          this.state.surveys.map((ele, index) => 
-            <Card style={{flex: 0, marginBottom: 12}} key={ele.id}>
-              <TouchableOpacity onPress={() => { this.props.navigation.push('Details', {surveyId: ele.id, title: ele.customerName}) }}>
-              <CardItem style={{marginBottom: -13}}>
-                <Left>
-                  <Body>
-                    <Text>{ele.customerName}</Text>
-                  </Body>
-                </Left>
-              </CardItem>
-              
-              <CardItem>
-              <View>
-                <Left>
-                    <Text note>Requester: {ele.requester.firstName+ ' '+ele.requester.lastName}</Text>
-                </Left>
-                <Right>
-                  <Text note>Due Date: {ele.dueDate}</Text>
-                </Right>
               </View>
-              </CardItem>
-            </TouchableOpacity> 
-          </Card>
-          
+            <Content>
+            {
+              this.state.surveys.map((ele, index) => 
+                <Card style={{flex: 0, marginBottom: 12}} key={ele.id}>
+                  <TouchableOpacity onPress={() => { this.props.navigation.push('Details', {surveyId: ele.id, title: ele.customerName}) }}>
+                  <CardItem style={{marginBottom: -13}}>
+                    <Left>
+                      <Body>
+                        <Text>{ele.customerName}</Text>
+                      </Body>
+                    </Left>
+                  </CardItem>
+                  
+                  <CardItem>
+                  <View>
+                    <Left>
+                        <Text note>Requester: {ele.requester.firstName+ ' '+ele.requester.lastName}</Text>
+                    </Left>
+                    <Right>
+                      <Text note>Due Date: {ele.dueDate}</Text>
+                    </Right>
+                  </View>
+                  </CardItem>
+                </TouchableOpacity> 
+              </Card>
+              
 
-          )}
-        </Content>
-      </Container>
-    );
+              )}
+          </Content>
+        </Container>
+      }else{
+        <View>
+          <Text>No surveys</Text>
+        </View>
+      }
+    } else {
+      return <View
+                    style={{
+                    flex: 1,
+                    padding: 20,
+                    alignContent :'center',
+                    justifyContent :'center',
+                    }}>
+        
+                    <ActivityIndicator size="large" color="#1275bc" />
+              </View>
+    }
   }
 }
 const mapStateToProps = state => {

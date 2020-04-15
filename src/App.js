@@ -81,7 +81,7 @@ const AuthContainer = createAppContainer(createSwitchNavigator(
 const AppContainer = createAppContainer(AuthContainer);
 
 const persistConfig = {
-  key: "root90", // name of the key for storing the data
+  key: "root", // name of the key for storing the data
   storage: AsyncStorage // storage to use. defaults to AsyncStorage
 };
 const persistedReducer = persistReducer(persistConfig, reducers);

@@ -102,7 +102,7 @@ export default class SignupScreen extends Component {
         else {
             this.setState({ loading: true })
             let user = this.state.user;
-            await fetch("http://localhost:5000/api/auth/signup", {
+            await fetch("http://159.203.100.198:5000/api/auth/signup", {
                 method: 'POST',
                 headers: {
                     Accept: 'application/json',

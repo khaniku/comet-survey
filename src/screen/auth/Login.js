@@ -109,7 +109,7 @@ class LoginScreen extends Component {
 
   async login () {
     let user = this.state.user;
-    await fetch("http://localhost:5000/api/auth/signin", {
+    await fetch("http://159.203.100.198:5000/api/auth/signin", {
       method: 'POST',
       headers: {
         Accept: 'application/json',
