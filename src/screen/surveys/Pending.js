@@ -131,7 +131,7 @@ searchFilterFunction = text => {
   render() {
     const { search } = this.state;
     if(!this.state.loading){
-      if(this.state.surveys !== null){
+      if(!this.state.surveys === undefined || !this.state.surveys === null){
         return <Container>
                   <Modal
                       isVisible={this.state.filterModal}
@@ -241,9 +241,9 @@ searchFilterFunction = text => {
           </Content>
         </Container>
       }else{
-        <View>
-          <Text>No surveys</Text>
-        </View>
+        return <View style={{flex: 1}}>
+                <Text style={{fontFamily: 'Arial-ItalicMT', color: '#a7a2a2'}}>No surveys</Text>
+            </View>
       }
     } else {
       return <View

@@ -35,7 +35,7 @@ export function login(usernameOrEmail, password){
         return responseJson;
     })
     .catch((error) => {
-    console.log(error);
+      console.log(error);
     });
   }
 
@@ -61,7 +61,7 @@ export function login(usernameOrEmail, password){
       }
       })
       .catch((error) => {
-      console.log(error);
+        console.log(error);
     });
   }
 
@@ -85,6 +85,6 @@ export function login(usernameOrEmail, password){
         return responseJson;
     })
     .catch((error) => {
-    console.log(error);
+      console.log(error);
     });
   }
