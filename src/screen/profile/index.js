@@ -107,7 +107,7 @@ class Profile extends React.Component {
                 <KeyboardAwareScrollView style={styles.loginScreenContainer} behavior={Platform.OS === 'ios' ? "padding" : null}>
 
                     <Header style={styles.headerStyle}>
-                        <StatusBar barStyle="dark-content" hidden={false} backgroundColor="transparent" translucent={true} />
+                        {/* <StatusBar barStyle="dark-content" hidden={false} backgroundColor="transparent" translucent={true} /> */}
                         <Left style={{ flex: 1 }}>
                             <Button transparent onPress={() => this.props.navigation.goBack()}>
                             <Ionicons name="ios-arrow-back" size={32} color="#1275bc" />

@@ -115,7 +115,7 @@ export default () =>
   <Provider store={store}>
     <PersistGate loading={renderLoading()} persistor={persistor}>
       <Root>
-        <StatusBar barStyle="dark-content" hidden={true} backgroundColor="transparent" translucent={true} />
+        {/* <StatusBar barStyle="dark-content" hidden={true}  /> */}
         <PaperProvider>
           <NavigationContainer>
             <AppContainer />

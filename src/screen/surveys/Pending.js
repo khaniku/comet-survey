@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
-import { View, Image, FlatList, Dimensions, TouchableOpacity} from 'react-native';
+import { View, Image, FlatList, Dimensions, StatusBar, TouchableOpacity, Platform} from 'react-native';
 import { Container, Header, Content, Card, CardItem, Thumbnail, Title, Text, Button, Icon, Left, Right, Body } from 'native-base';
 import { SearchBar, CheckBox} from 'react-native-elements';
 import Modal from "react-native-modal";
 import DateTimePicker from "react-native-modal-datetime-picker";
 import { withNavigation } from 'react-navigation';
 import Moment from 'moment';
-
+import {connect} from 'react-redux';
+import {fetchSurveys} from '../../actions/api'
 const today = new Date();
 const tomorrow = today.setDate(today.getDate() + 1);
 
@@ -38,7 +39,7 @@ class PendingScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      surveys: surveys,
+      surveys: [],
       backupSurvey: [],
       search: '',
       filterModal: false,
@@ -48,16 +49,25 @@ class PendingScreen extends Component {
       date: '',
       todayChecked: false,
       tomorrowChecked: false,
-      resetList: false
+      resetList: false,
+      loading: true
     }
+  }
+
+  async componentDidMount() {
+    let that = this
+    await fetchSurveys(this.props.user.userId, this.props.user.accessToken).then(function (responseJson) {
+      that.setState({surveys: responseJson, loading: false})
+    })
+    this.setState({backupSurvey: this.state.surveys})
   }
 
   updateSearch = search => {
     this.setState({ search });
   };
 
-  resetTaskSearch = () => {
-    this.setState({surveys: surveys})
+  resetSurveySearch = () => {
+    this.setState({surveys: this.state.backupSurvey})
   }
 
   openFilter() {
@@ -73,8 +83,12 @@ hideDatePicker = () => {
 };
 
 handleDatePicked = date => {
-  
-    this.hideDatePicker();
+  let data = this.state.surveys;
+  this.setState({resetList: true})
+  this.setState({ todayChecked: false, tomorrowChecked: false})
+  let newArr = data.filter(o => Moment(o.dueDate).format('MMM DD YYYY')  === Moment(date).format('MMM DD YYYY'));
+  this.setState({ surveys: newArr});
+  this.hideDatePicker();
 };
 
 resetList = () => {
@@ -88,25 +102,24 @@ clear = () => {
 filterByDate = (date, type) => {
   if(type == 'today'){
     if(this.state.todayChecked){
-      this.setState({todayChecked: false, surveys: surveys})
+      this.setState({todayChecked: false, surveys: this.state.backupSurvey})
     }else{
-      let newArr = surveys.filter(o => o.due_date  === Moment(date).format('MMM DD YYYY'));
+      let newArr = this.state.surveys.filter(o => o.dueDate  === Moment(date).format('MMM DD YYYY'));
       this.setState({todayChecked: true, tomorrowChecked: false, surveys: newArr})
     }
   }else{
     if(this.state.tomorrowChecked){
-      this.setState({tomorrowChecked: false, surveys: surveys})
+      this.setState({tomorrowChecked: false, surveys: this.state.backupSurvey})
     }else{
-      let newArr = surveys.filter(o => o.due_date  === Moment(date).format('MMM DD YYYY'));
+      let newArr = this.state.surveys.filter(o => o.dueDate  === Moment(date).format('MMM DD YYYY'));
       this.setState({todayChecked: false, tomorrowChecked: true, surveys: newArr})
     }
   }
 }
 
 searchFilterFunction = text => {
-  this.setState({backupSurvey: this.state.surveys})
-  const newData = surveys.filter(item => {      
-    const itemData = `${item.business_name.toUpperCase()}`;
+  const newData = this.state.backupSurvey.filter(item => {      
+    const itemData = `${item.customerName.toUpperCase()}`;
     const textData = text.toUpperCase();
 
      return itemData.indexOf(textData) > -1;    
@@ -118,6 +131,7 @@ searchFilterFunction = text => {
     const { search } = this.state;
      return (
       <Container>
+        {/* <StatusBar barStyle="dark-content" hidden={true}  /> */}
         <Modal
             isVisible={this.state.filterModal}
             style={{ backgroundColor: '#1275bcef', borderRadius: 10, marginHorizontal: 30, marginVertical: (height - 400) / 2 }}
@@ -162,7 +176,7 @@ searchFilterFunction = text => {
                         <Text style={{ color: '#fff' }}>Specific date</Text>
                         <TouchableOpacity onPress={this.showDatePicker} style={{ alignItems: 'center', flexDirection: 'row', flex: 1, justifyContent: 'flex-end' }}>
                         {this.state.resetList ?
-                            <Icon style={{ color: 'white', position: 'absolute', top: 1, right: 40, fontSize: 22}} name='times-circle' type='FontAwesome' onPress={() => this.resetList()} />
+                            <Icon style={{ color: 'white', position: 'absolute', top: 1, right: 40, fontSize: 22}} name='times-circle' type='FontAwesome' onPress={() => this.resetSurveySearch()} />
                             : null
                         }
                         <Icon style={{ color: '#fff', fontSize: 24, marginRight: 3 }} name='calendar' type='MaterialCommunityIcons' />
@@ -186,7 +200,7 @@ searchFilterFunction = text => {
               round
               onChangeText={text => this.searchFilterFunction(text) }
               value={this.state.search}
-              onClear={text => this.resetTaskSearch()}
+              onClear={text => this.resetSurveySearch()}
               containerStyle={{ backgroundColor: 'transparent', width: width * 0.7, marginRight: 10, borderBottomWidth: 0, borderTopWidth: 0, padding: 0, borderColor: 'transparent' }}
               inputContainerStyle={{ backgroundColor: 'transparent', borderWidth: 1, borderBottomWidth: 1, borderColor: '#939393', height: 40, borderRadius: 5 }}
               inputStyle={{ fontSize: 12 }}
@@ -201,24 +215,22 @@ searchFilterFunction = text => {
         {
           this.state.surveys.map((ele, index) => 
             <Card style={{flex: 0, marginBottom: 12}} key={ele.id}>
-              <TouchableOpacity onPress={() => { this.props.navigation.push('Details', {surveyId: ele.id, title: ele.business_name}) }}>
-              <CardItem>
+              <TouchableOpacity onPress={() => { this.props.navigation.push('Details', {surveyId: ele.id, title: ele.customerName}) }}>
+              <CardItem style={{marginBottom: -13}}>
                 <Left>
-                {/* <Image  resizeMode="cover" source={{uri: ele.background_photo}} style={{height: 50, width: 100}}/> */}
                   <Body>
-                    <Text>{ele.business_name}</Text>
-                    {/* <Text note>{ele.description}</Text> */}
+                    <Text>{ele.customerName}</Text>
                   </Body>
                 </Left>
               </CardItem>
               
               <CardItem>
-              <View style={{flexDirection: 'row'}}>
+              <View>
                 <Left>
-                    <Text note>Requester: {ele.name}</Text>
+                    <Text note>Requester: {ele.requester.firstName+ ' '+ele.requester.lastName}</Text>
                 </Left>
                 <Right>
-                  <Text note>Due Date: {ele.due_date}</Text>
+                  <Text note>Due Date: {ele.dueDate}</Text>
                 </Right>
               </View>
               </CardItem>
@@ -232,5 +244,8 @@ searchFilterFunction = text => {
     );
   }
 }
+const mapStateToProps = state => {
+  return {user: state.user}
+}
 
-export default withNavigation(PendingScreen);
+export default connect(mapStateToProps)(withNavigation(PendingScreen));

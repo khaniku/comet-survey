@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet} from 'react-native';
 import {
   createDrawerNavigator,
   DrawerContentScrollView,
@@ -102,7 +102,7 @@ export default function App() {
   
   return (
     <Stack.Navigator>
-       <Stack.Screen options={{ headerShown: false}}  name="Drawer" component={mainDrawer} />
+       <Stack.Screen options={{ headerShown: false}}  name="Home" component={mainDrawer} />
        <Stack.Screen name="Login" options={{headerShown: false}} component={Login} />
     </Stack.Navigator>
   );

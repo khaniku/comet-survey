@@ -18,7 +18,7 @@ export default {
         elevation: 0
     },
     iconStyle: {
-        fontSize: hp('3.4%'),
+        fontSize: hp('4.0%'),
         color: '#000000'
     },
     titleStyle:{

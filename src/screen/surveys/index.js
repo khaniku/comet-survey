@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, StatusBar} from 'react-native';
+import { View, StatusBar, Platform} from 'react-native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import PendingScreen from './Pending.js';
 import CompletedScreen from './Completed.js';
@@ -13,12 +13,16 @@ export default class SurveyScreen extends Component {
     return (
       <Container>
       <Header style={styles.headerStyle}>
-            <StatusBar barStyle="dark-content" hidden={false} backgroundColor="transparent" translucent={true} />
+            {/* <StatusBar barStyle="dark-content" hidden={false} backgroundColor="transparent" translucent={true} /> */}
             <Left style={{ flex: 1 }}>
-                <Button transparent onPress={() => this.props.navigation.openDrawer()}>
+                <Button  transparent onPress={() => this.props.navigation.openDrawer()}>
                     <Icon name="menu" style={styles.iconStyle} color='#000000' />
                 </Button>
             </Left>
+            <Body>
+              <Text>Comet Survey</Text>
+            </Body>
+            <Right></Right>
           </Header>
           <Tab.Navigator>
               <Tab.Screen name="Pending" nav component={PendingScreen} />
