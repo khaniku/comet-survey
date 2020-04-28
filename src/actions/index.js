@@ -18,3 +18,10 @@ export function updateUser(firstName, lastName) {
 export function addPictures(pictures) {
     return { type: 'ADD_PICTURES', payload: pictures}
 }
+
+export function addNewPicture(active, data) {
+    return { type: 'ADD_NEW_PICTURE', payload: {
+        active,
+        data
+    }}
+}

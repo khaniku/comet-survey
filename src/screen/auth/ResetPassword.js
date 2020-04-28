@@ -70,9 +70,11 @@ export default class ResetPasswordScreen extends Component {
             resetPassword(email).then(function (responseJson) {
                 if(responseJson.success){
                     alert("Please check your email")
+                    that.props.navigation.navigate('Login');
                     that.setState({loading: false})
                     that.setState({ errors: { showError: true, errorText: '' } });
                 } else {
+                    that.setState({loading: false})
                     that.setState({ errors: { showError: true, errorText: responseJson.message } });
                 }
             })

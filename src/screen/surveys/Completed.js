@@ -1,137 +1,267 @@
 import React, { Component } from 'react';
-import {
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-  FlatList,
-  Modal,
-  Image
-} from 'react-native';
+import { View, Image, FlatList, Dimensions, StatusBar, TouchableOpacity, Platform} from 'react-native';
+import { Container, Header, Content, Card, CardItem, Thumbnail, Title, Text, Button, Icon, Left, Right, Body } from 'native-base';
+import { SearchBar, CheckBox} from 'react-native-elements';
+import Modal from "react-native-modal";
+import DateTimePicker from "react-native-modal-datetime-picker";
+import { withNavigation } from 'react-navigation';
+import Moment from 'moment';
+import {connect} from 'react-redux';
+import {fetchSurveys} from '../../actions/api'
+import { ActivityIndicator } from 'react-native-paper';
 
-export default class App extends Component {
+const today = new Date();
+const tomorrow = today.setDate(today.getDate() + 1);
+
+const surveys = [
+  {
+    id: 1,
+    business_name: 'HEB Survey',
+    name: 'Emeka Kanikwu',
+    profile_photo: 'https://s3.amazonaws.com/uifaces/faces/twitter/brynn/128.jpg',
+    background_photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Logo_of_the_HEB_Grocery_Company%2C_LP.png/1598px-Logo_of_the_HEB_Grocery_Company%2C_LP.png',
+    description: 'This is just a random test and does not signify anything or mean anything',
+    due_date: 'Mar 27 2020'
+ },
+ {
+    id: 2,
+    business_name: 'Circle K Survey',
+    name: 'Bobby Kanikwu',
+    profile_photo: 'https://s3.amazonaws.com/uifaces/faces/twitter/brynn/128.jpg',
+    background_photo: 'data:image/png;base64,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',
+    description: 'This is just a random test and does not signify anything or mean anything',
+    due_date: 'Aug 20 2020'
+ },
+]
+
+const DEVICE_WIDTH = Dimensions.get('window').width;
+const { width, height } = Dimensions.get('window');
+
+class CompletedScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      imageuri: '',
-      ModalVisibleStatus: false,
-    };
+      surveys: [],
+      backupSurvey: [],
+      search: '',
+      filterModal: false,
+      addModal: false,
+      checked: false,
+      dateVisible: false,
+      date: '',
+      todayChecked: false,
+      tomorrowChecked: false,
+      resetList: false,
+      loading: true
+    }
   }
 
-  ShowModalFunction(visible, imageURL) {
-    //handler to handle the click on image of Grid
-    //and close button on modal
-
-    this.setState({
-      ModalVisibleStatus: visible,
-      imageuri: imageURL,
-    });
+  async componentDidMount() {
+    let that = this
+    await fetchSurveys(this.props.user.userId, this.props.user.accessToken).then(function (responseJson) {
+      that.setState({surveys: responseJson, loading: false})
+    })
+    this.setState({backupSurvey: this.state.surveys})
   }
 
-  componentDidMount() {
-    var that = this;
-    let items = Array.apply(null, Array(5)).map((v, i) => {
-      return { id: i, src: 'https://unsplash.it/400/400?image=' + (i + 1) };
-    });
-    that.setState({
-      dataSource: items,
-    });
+  updateSearch = search => {
+    this.setState({ search });
+  };
+
+  resetSurveySearch = () => {
+    this.setState({surveys: this.state.backupSurvey})
   }
 
-  render() {
-    if (this.state.ModalVisibleStatus) {
-      return (
-        <Modal
-          transparent={false}
-          animationType={'fade'}
-          visible={this.state.ModalVisibleStatus}
-          onRequestClose={() => {
-            this.ShowModalFunction(!this.state.ModalVisibleStatus, '');
-          }}>
-          <View style={styles.modelStyle}>
-            <Image
-              style={styles.fullImageStyle}
-              source={{ uri: this.state.imageuri }}
-              //resizeMode={Image.resizeMode.contain}
-            />
-            <TouchableOpacity
-              activeOpacity={0.5}
-              style={styles.closeButtonStyle}
-              onPress={() => {
-                this.ShowModalFunction(!this.state.ModalVisibleStatus, '');
-              }}>
-              <Image
-                source={{
-                  uri:
-                    'https://raw.githubusercontent.com/AboutReact/sampleresource/master/close.png',
-                }}
-                style={{ width: 35, height: 35, marginTop: 16 }}
-              />
-            </TouchableOpacity>
-          </View>
-        </Modal>
-      );
-    } else {
-      return (
-        <View style={styles.container}>
-          <View style={{height: '50%'}}>
-            <FlatList
-              data={this.state.dataSource}
-              renderItem={({ item }) => (
-                <View style={{ flex: 1, flexDirection: 'column', margin: 1}}>
-                  <TouchableOpacity
-                    key={item.id}
-                    style={{ flex: 1 }}
-                    onPress={() => {
-                      this.ShowModalFunction(true, item.src);
-                    }}>
-                    <Image
-                      style={styles.image}
-                      source={{
-                        uri: item.src,
-                      }}
-                    />
-                  </TouchableOpacity>
-                </View>
-              )}
-              //Setting the number of column
-              numColumns={3}
-              keyExtractor={(item, index) => index.toString()}
-            />
-          </View>
-        </View>
-      );
+  openFilter() {
+    this.setState({ filterModal: true })
+  }
+
+  showDatePicker = () => {
+    this.setState({ dateVisible: true });
+};
+
+hideDatePicker = () => {
+    this.setState({ dateVisible: false });
+};
+
+handleDatePicked = date => {
+  let data = this.state.surveys;
+  this.setState({resetList: true})
+  this.setState({ todayChecked: false, tomorrowChecked: false})
+  let newArr = data.filter(o => Moment(o.dueDate).format('MMM DD YYYY')  === Moment(date).format('MMM DD YYYY'));
+  this.setState({ surveys: newArr});
+  this.hideDatePicker();
+};
+
+resetList = () => {
+  
+}
+
+clear = () => {
+  this.search.clear();
+};
+
+filterByDate = (date, type) => {
+  if(type == 'today'){
+    if(this.state.todayChecked){
+      this.setState({todayChecked: false, surveys: this.state.backupSurvey})
+    }else{
+      let newArr = this.state.surveys.filter(o => o.dueDate  === Moment(date).format('MMM DD YYYY'));
+      this.setState({todayChecked: true, tomorrowChecked: false, surveys: newArr})
+    }
+  }else{
+    if(this.state.tomorrowChecked){
+      this.setState({tomorrowChecked: false, surveys: this.state.backupSurvey})
+    }else{
+      let newArr = this.state.surveys.filter(o => o.dueDate  === Moment(date).format('MMM DD YYYY'));
+      this.setState({todayChecked: false, tomorrowChecked: true, surveys: newArr})
     }
   }
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    marginTop: 30,
-  },
-  image: {
-    height: 120,
-    width: '100%',
-  },
-  fullImageStyle: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: '100%',
-    width: '98%',
-    resizeMode: 'contain',
-  },
-  modelStyle: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.4)',
-  },
-  closeButtonStyle: {
-    width: 25,
-    height: 25,
-    top: 9,
-    right: 9,
-    position: 'absolute',
-  },
-});
+searchFilterFunction = text => {
+  const newData = this.state.backupSurvey.filter(item => {      
+    const itemData = `${item.customerName.toUpperCase()}`;
+    const textData = text.toUpperCase();
+
+     return itemData.indexOf(textData) > -1;    
+  }); 
+  this.setState({ search: text, surveys: newData});    
+};
+
+  render() {
+    const { search } = this.state;
+    if(!this.state.loading){
+      if(this.state.surveys.length !== 0){
+        return <Container>
+                  <Modal
+                      isVisible={this.state.filterModal}
+                      style={{ backgroundColor: '#1275bcef', borderRadius: 10, marginHorizontal: 30, marginVertical: (height - 400) / 2 }}
+                      deviceHeight={height}
+                      backdropColor='transparent'
+                      onBackdropPress={() => this.setState({ filterModal: false })}
+                  >
+                      <View style={{ marginTop: 22, height: 400, paddingVertical: 15, paddingHorizontal: 20 }}>
+                        <View>
+                          <Text style={{ color: '#fff', textAlign: 'center', fontSize: 18, }}>Filters</Text>
+                          <Icon style={{ color: 'white', position: 'absolute', top: 0, right: 0 }} name='clear' type='MaterialIcons' onPress={() => this.setState({ filterModal: false })} />
+                          <View style={{ marginBottom: 10 }}>
+                              <Text style={{ fontWeight: '700', marginBottom: 10, color: '#fff' }}>By time</Text>
+                              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                                  <Text style={{ color: '#fff' }}>Today</Text>
+                                  <CheckBox
+                                      containerStyle={{ borderWidth: 0, paddingLeft: 0, backgroundColor: 'transparent', marginLeft: 0, marginRight: 0, padding: 0 }}
+                                      textStyle={{ fontWeight: 'normal', color: '#fff' }}
+                                      iconRight={true}
+                                      right
+                                      checkedColor='#fff'
+                                      uncheckedColor='#fff'
+                                      onPress={() => this.filterByDate(today, 'today')}
+                                      checked={this.state.todayChecked}
+                                  />
+                              </View>
+
+                              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                                  <Text style={{ color: '#fff' }}>Tomorrow</Text>
+                                  <CheckBox
+                                      containerStyle={{ borderWidth: 0, paddingLeft: 0, backgroundColor: 'transparent', marginLeft: 0, marginRight: 0, padding: 0 }}
+                                      textStyle={{ fontWeight: 'normal', color: '#fff' }}
+                                      iconRight={true}
+                                      right
+                                      checkedColor='#fff'
+                                      uncheckedColor='#fff'
+                                      onPress={() => this.filterByDate(tomorrow, 'tomorrow')}
+                                      checked={this.state.tomorrowChecked}
+                                  />
+                              </View>
+                              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                                  <Text style={{ color: '#fff' }}>Specific date</Text>
+                                  <TouchableOpacity onPress={this.showDatePicker} style={{ alignItems: 'center', flexDirection: 'row', flex: 1, justifyContent: 'flex-end' }}>
+                                  {this.state.resetList ?
+                                      <Icon style={{ color: 'white', position: 'absolute', top: 1, right: 40, fontSize: 22}} name='times-circle' type='FontAwesome' onPress={() => this.resetSurveySearch()} />
+                                      : null
+                                  }
+                                  <Icon style={{ color: '#fff', fontSize: 24, marginRight: 3 }} name='calendar' type='MaterialCommunityIcons' />
+                                  </TouchableOpacity>
+                                  <DateTimePicker
+                                      isVisible={this.state.dateVisible}
+                                      onConfirm={this.handleDatePicked}
+                                      onCancel={this.hideDatePicker}
+                                      mode='date'
+                                  />
+                              </View>
+                          </View>
+                      </View>
+                    </View>
+                  </Modal>
+              <View style={{ flexDirection: 'row', padding: 10, alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, marginTop: 20 }}>
+                <SearchBar
+                    placeholder='Search survey'
+                    round
+                    onChangeText={text => this.searchFilterFunction(text) }
+                    value={this.state.search}
+                    onClear={text => this.resetSurveySearch()}
+                    containerStyle={{ backgroundColor: 'transparent', width: width * 0.7, marginRight: 10, borderBottomWidth: 0, borderTopWidth: 0, padding: 0, borderColor: 'transparent' }}
+                    inputContainerStyle={{ backgroundColor: 'transparent', borderWidth: 1, borderBottomWidth: 1, borderColor: '#939393', height: 40, borderRadius: 5 }}
+                    inputStyle={{ fontSize: 12 }}
+                    autoCorrect={false}
+                />
+                <View style={{ flexDirection: 'row', alignItems: 'center', }}>
+                    <Text style={{ marginRight: 10 }}>Filter</Text>
+                    <Icon name='filter-list' type='MaterialIcons' style={{ color: '#1275bc' }} onPress={() => this.openFilter()} />
+                </View>
+              </View>
+            <Content>
+            {
+              this.state.surveys.map((ele, index) => 
+                <Card style={{flex: 0, marginBottom: 12, backgroundColor: '#c8e6c9'}} key={ele.id}>
+                  <TouchableOpacity onPress={() => { this.props.navigation.push('Details', {surveyId: ele.id, title: ele.customerName}) }}>
+                  <CardItem style={{marginBottom: -5, backgroundColor: '#c8e6c9'}}>
+                    <Left>
+                      <Body>
+                        <Text>{ele.customerName}</Text>
+                      </Body>
+                    </Left>
+                  </CardItem>
+                  
+                  <CardItem style={{backgroundColor: '#c8e6c9'}}>
+                  <View>
+                    <Left>
+                        <Text note>Requester: {ele.requester.firstName+ ' '+ele.requester.lastName}</Text>
+                    </Left>
+                    <Right>
+                      <Text style={{marginLeft: -8}} note>Due Date: {ele.dueDate}</Text>
+                    </Right>
+                  </View>
+                  </CardItem>
+                </TouchableOpacity> 
+              </Card>
+              
+
+              )}
+          </Content>
+        </Container>
+      }else{
+        return <View style={{flex: 1}}>
+                <Text style={{fontFamily: 'Arial-ItalicMT', color: '#a7a2a2'}}>No surveys</Text>
+            </View>
+      }
+    } else {
+      return <View
+                    style={{
+                    flex: 1,
+                    padding: 20,
+                    alignContent :'center',
+                    justifyContent :'center',
+                    }}>
+        
+                    <ActivityIndicator size="large" color="#1275bc" />
+              </View>
+    }
+  }
+}
+const mapStateToProps = state => {
+  return {user: state.user}
+}
+
+export default connect(mapStateToProps)(withNavigation(CompletedScreen));

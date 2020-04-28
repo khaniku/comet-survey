@@ -100,7 +100,7 @@ export default class SignupScreen extends Component {
         else {
             this.setState({ loading: true })
             let user = this.state.user;
-            await fetch("http://159.203.100.198:5000/api/auth/signup", {
+            await fetch("http://localhost:5000/api/auth/signup", {
                 method: 'POST',
                 headers: {
                     Accept: 'application/json',
@@ -113,7 +113,8 @@ export default class SignupScreen extends Component {
                 if(responseJson.success){
                     this.setState({loading: false})
                     this.setState({errors:{ showError: false , errorText: ''}});
-                    this.props.navigation.navigate('Home');
+                    alert("User created")
+                    this.props.navigation.navigate('Login');
                 } else {
                     this.setState({loading: false})
                     this.setState({errors:{ showError: true , errorText: responseJson.message}});

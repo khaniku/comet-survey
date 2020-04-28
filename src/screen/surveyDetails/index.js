@@ -6,7 +6,6 @@ import {
     Text,
     View,
     TouchableOpacity,
-    ActivityIndicator,
     Modal,
     FlatList,
     Image,
@@ -27,9 +26,12 @@ import { Avatar } from 'react-native-elements';
 import * as ImagePicker from 'expo-image-picker';
 import * as Permissions from 'expo-permissions';
 import * as actions from '../../actions';
+import { ActivityIndicator } from 'react-native-paper';
+
 
 let items = [];
 let count = 1;
+const URL = "http://localhost:5000/api/picture/downloadFile/"
 
 class Details extends Component {
   constructor(props) {
@@ -83,6 +85,7 @@ class Details extends Component {
   ShowModalFunction = (visible, imageURL) => {
     //handler to handle the click on image of Grid
     //and close button on modal
+
     this.setState({
       ModalVisibleStatus: visible,
       imageuri: imageURL,
@@ -98,7 +101,7 @@ class Details extends Component {
     }
   };
 
-  _pickImage = async (assetId) => {
+  _pickImage = async (active, assetId) => {
     try {
       let result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -113,8 +116,10 @@ class Details extends Component {
         items.push(result);
         this.setState({ image: result.uri, dataSource: items});
         await uploadPhoto(this.state.image, assetId, this.props.user.accessToken).then(function(data){
-          that.props.addPictures(data)
+          //console.log("data "+data[0])
+          that.props.addNewPicture(active, data)
         })
+        console.log(this.props.picture)
         count++;
       }
 
@@ -168,12 +173,12 @@ class Details extends Component {
                   <TouchableOpacity
                     key={item.id}
                     onPress={() => {
-                      this.ShowModalFunction(true, item.src);
+                      this.ShowModalFunction(true, URL+item.fileLocation);
                     }}>
                     <Image
                       style={styles.image}
                       source={{
-                        uri: item.fileLocation,
+                        uri: URL+item.fileLocation,
                       }}
                     />
                   </TouchableOpacity>: ''}
@@ -183,7 +188,7 @@ class Details extends Component {
               numColumns={3}
               keyExtractor={(item, index) => index.toString()}
             />
-            <TouchableOpacity onPress={() => this._pickImage(assetId)} >
+            <TouchableOpacity onPress={() => this._pickImage(active, assetId)} >
               {this.state.documentLoading ?
                 <Progress.Circle size={50} indeterminate={true} style={{backgroundColor: '#D8D8D8', borderRadius: 30, marginRight: 20}}>
                     <Icon style={{ color: 'white', position: 'absolute', top: 10, right: 10, fontSize: 27 }} name='attachment' type='MaterialIcons' />

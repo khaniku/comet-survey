@@ -81,6 +81,7 @@ export default class ChangePasswordScreen extends Component {
             changePassword(token, this.state.password).then(function (responseJson) {
                 if(responseJson.success){
                     alert("Password changed")
+                    that.props.navigation.navigate('Login');
                     that.setState({loading: false})
                     that.setState({ errors: { showError: true, errorText: '' } });
                 } else {
