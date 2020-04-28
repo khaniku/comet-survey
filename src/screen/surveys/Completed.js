@@ -1,73 +1,137 @@
 import React, { Component } from 'react';
-import { Alert, Button, TextInput, View, StyleSheet , Text} from 'react-native';
-const fields = [{
-      name: 'Height',
-      value: ''
-    },
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  FlatList,
+  Modal,
+  Image
+} from 'react-native';
 
-    {
-      name: 'Width',
-      value: ''
-    }];
-export default class CompletedScreen extends Component {
+export default class App extends Component {
   constructor(props) {
     super(props);
-    
     this.state = {
-      data: fields 
+      imageuri: '',
+      ModalVisibleStatus: false,
     };
   }
-  
-  onSubmit() {
-    const { Height, Width } = this.state;
-    Alert.alert('Info', `${Height} + ${Width}`);
+
+  ShowModalFunction(visible, imageURL) {
+    //handler to handle the click on image of Grid
+    //and close button on modal
+
+    this.setState({
+      ModalVisibleStatus: visible,
+      imageuri: imageURL,
+    });
   }
 
-  onChange(index, value) {
-    let fields = this.state.data;
-    fields[index].value = value;
-    this.setState({data: fields})
+  componentDidMount() {
+    var that = this;
+    let items = Array.apply(null, Array(5)).map((v, i) => {
+      return { id: i, src: 'https://unsplash.it/400/400?image=' + (i + 1) };
+    });
+    that.setState({
+      dataSource: items,
+    });
   }
 
   render() {
-    const array = fields.map((data, i) => {
+    if (this.state.ModalVisibleStatus) {
       return (
-        <View key={i}>
-          <TextInput
-              value={this.state.data[i].value}
-              onChangeText={(value)  => this.onChange(i, value)}
-              placeholder={this.state.data[i].name}
-              style={styles.input}
+        <Modal
+          transparent={false}
+          animationType={'fade'}
+          visible={this.state.ModalVisibleStatus}
+          onRequestClose={() => {
+            this.ShowModalFunction(!this.state.ModalVisibleStatus, '');
+          }}>
+          <View style={styles.modelStyle}>
+            <Image
+              style={styles.fullImageStyle}
+              source={{ uri: this.state.imageuri }}
+              //resizeMode={Image.resizeMode.contain}
             />
+            <TouchableOpacity
+              activeOpacity={0.5}
+              style={styles.closeButtonStyle}
+              onPress={() => {
+                this.ShowModalFunction(!this.state.ModalVisibleStatus, '');
+              }}>
+              <Image
+                source={{
+                  uri:
+                    'https://raw.githubusercontent.com/AboutReact/sampleresource/master/close.png',
+                }}
+                style={{ width: 35, height: 35, marginTop: 16 }}
+              />
+            </TouchableOpacity>
+          </View>
+        </Modal>
+      );
+    } else {
+      return (
+        <View style={styles.container}>
+          <View style={{height: '50%'}}>
+            <FlatList
+              data={this.state.dataSource}
+              renderItem={({ item }) => (
+                <View style={{ flex: 1, flexDirection: 'column', margin: 1}}>
+                  <TouchableOpacity
+                    key={item.id}
+                    style={{ flex: 1 }}
+                    onPress={() => {
+                      this.ShowModalFunction(true, item.src);
+                    }}>
+                    <Image
+                      style={styles.image}
+                      source={{
+                        uri: item.src,
+                      }}
+                    />
+                  </TouchableOpacity>
+                </View>
+              )}
+              //Setting the number of column
+              numColumns={3}
+              keyExtractor={(item, index) => index.toString()}
+            />
+          </View>
         </View>
-      )
-    })
-    return (
-      <View style={styles.container}>
-        {array}
-        <Text>testing here{fields.Height}</Text>
-        <Button
-          title={'Submit'}
-          style={styles.input}
-          onPress={this.onSubmit.bind(this)}
-        />
-      </View>
-    );
+      );
+    }
   }
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#ecf0f1',
+    marginTop: 30,
   },
-  input: {
-    width: 200,
-    height: 44,
-    padding: 10,
-    borderWidth: 1,
-    borderColor: 'black',
-    marginBottom: 10,
+  image: {
+    height: 120,
+    width: '100%',
+  },
+  fullImageStyle: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '100%',
+    width: '98%',
+    resizeMode: 'contain',
+  },
+  modelStyle: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.4)',
+  },
+  closeButtonStyle: {
+    width: 25,
+    height: 25,
+    top: 9,
+    right: 9,
+    position: 'absolute',
   },
 });

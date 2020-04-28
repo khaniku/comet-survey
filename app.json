@@ -4,6 +4,7 @@
     "slug": "comet",
     "privacy": "public",
     "sdkVersion": "36.0.0",
+    "scheme": "comet-survey",
     "platforms": [
       "ios",
       "android",

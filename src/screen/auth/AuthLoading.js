@@ -27,7 +27,7 @@ class AuthLoadingScreen extends React.Component {
     this.props.navigation.navigate(userToken ? 'Home' : 'Auth');
     if(this.props.accessToken == null){
       SecureStore.deleteItemAsync('access_token')
-      this.props.navigation.navigate('Auth')
+      this.props.navigation.replace('Auth')
     }
   };
 

@@ -14,3 +14,7 @@ export function updateUser(firstName, lastName) {
         }
     }
 }
+
+export function addPictures(pictures) {
+    return { type: 'ADD_PICTURES', payload: pictures}
+}

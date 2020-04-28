@@ -85,7 +85,6 @@ export default {
   },
   image: {
     width: wp('65%'),
-    marginTop: hp('12%'),
     marginBottom: hp('5%'),
     height: wp('19%'),
     overflow: 'hidden',

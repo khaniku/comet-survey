@@ -9,6 +9,7 @@ import Moment from 'moment';
 import {connect} from 'react-redux';
 import {fetchSurveys} from '../../actions/api'
 import { ActivityIndicator } from 'react-native-paper';
+
 const today = new Date();
 const tomorrow = today.setDate(today.getDate() + 1);
 
@@ -131,7 +132,7 @@ searchFilterFunction = text => {
   render() {
     const { search } = this.state;
     if(!this.state.loading){
-      if(!this.state.surveys === undefined || !this.state.surveys === null){
+      if(this.state.surveys !== undefined){
         return <Container>
                   <Modal
                       isVisible={this.state.filterModal}

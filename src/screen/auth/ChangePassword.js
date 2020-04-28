@@ -6,14 +6,16 @@ import logo from '../../../assets/logo.png';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { Button as ElementButton } from "react-native-elements";
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
-import {resetPassword} from '../../actions/api';
+import {resetPassword, validateToken, changePassword} from '../../actions/api';
+import PasswordInputText from "../../components/passwordInput";
 
-export default class ResetPasswordScreen extends Component {
+export default class ChangePasswordScreen extends Component {
     constructor(props) {
         super(props);
         this.state = {
             loading: false,
-            email: '',
+            password: '',
+            token: '',
             errors: {
                 errorText: '',
                 showError: false,
@@ -31,9 +33,10 @@ export default class ResetPasswordScreen extends Component {
                             {this.state.errors.showError ? (
                                 <Text style={ styles.error_text} >{this.state.errors.errorText}</Text>
                             ) : null}
-                            <Text style={styles.normal_text}>Please fill out your email. A link to reset password will be sent there.</Text>
-                            <Text style={styles.normal_text}>Email Address</Text>
-                            <TextInput placeholder="Email" placeholderColor="#c4c3cb" style={styles.loginFormTextInput} onChangeText={(text) => this.setState({email: text, errors: { showError: false, errorText: '' }})} />
+                            <Text style={styles.normal_text}>Change your password</Text>
+                            <Text style={styles.normal_text}>Password</Text>
+                            <PasswordInputText placeholder="Password"  onChangeText={(text) => this.state.password = text}
+                                 placeholderColor="#c4c3cb" style = {styles.error_input}/>
                             {!this.state.loading ?
                                 <ElementButton
                                     buttonStyle={styles.loginButton}
@@ -51,25 +54,33 @@ export default class ResetPasswordScreen extends Component {
         );
     }
 
-    componentDidMount() {
-        // let { route } = this.props;
-        // let param = route.params;
-        // console.log("param: "+param.token)
+    async componentDidMount() {
+        let { route } = this.props;
+        let param = route.params;
+        let token = param.token;
+        this.setState({token: token})
+        let that = this;
+        await validateToken(token).then(function (responseJson) {
+            if(!responseJson.success){
+                alert(responseJson.message)
+                that.props.navigation.push('Auth')
+            }
+        })
     }
 
     componentWillUnmount() {
     }
 
     onSendPress() {
-        const email = this.state.email;
+        const token = this.state.token;
         let that = this;
-        if(this.state.email.length == 0) {
-                this.setState({errors:{ showError: true , errorText: 'The Email is empty!'}});
+        if(this.state.password.length <= 4) {
+                this.setState({errors:{ showError: true , errorText: 'Password should be longer than 4 characters'}});
         }else{
             this.setState({loading: true})
-            resetPassword(email).then(function (responseJson) {
+            changePassword(token, this.state.password).then(function (responseJson) {
                 if(responseJson.success){
-                    alert("Please check your email")
+                    alert("Password changed")
                     that.setState({loading: false})
                     that.setState({ errors: { showError: true, errorText: '' } });
                 } else {

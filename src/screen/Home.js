@@ -81,7 +81,7 @@ async function registerForPushNotificationsAsync(user, auth) {
 
   // Stop here if the user did not grant permissions
   if (status !== 'granted') {
-    alert('No notification permissions!');
+    console.log('No notification permissions!');
     return;
   }
 

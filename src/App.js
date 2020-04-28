@@ -2,7 +2,8 @@ import React from 'react';
 import { Platform, StyleSheet, Text, View, AsyncStorage, StatusBar, ActivityIndicator } from 'react-native';
 import { Root, StyleProvider } from "native-base";
 import { createAppContainer, createSwitchNavigator } from 'react-navigation';
-import { createStackNavigator } from 'react-navigation-stack';
+//import { createStackNavigator } from 'react-navigation-stack';
+import { createStackNavigator } from '@react-navigation/stack';
 import LoginScreen from './screen/auth/Login.js';
 import SignupScreen from "./screen/auth/SignUp.js";
 import ResetPasswordScreen from "./screen/auth/ResetPassword.js";
@@ -18,67 +19,127 @@ import { Asset } from 'expo-asset';
 import AuthLoadingScreen from "./screen/auth/AuthLoading";
 import HomeScreen from "./screen/Home";
 import { Provider as PaperProvider } from 'react-native-paper';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, useLinking } from '@react-navigation/native';
+import FlashMessage from "react-native-flash-message";
+import { Linking } from 'expo';
+import ChangePasswordScreen from './screen/auth/ChangePassword.js';
 
 Asset;
+const Stack = createStackNavigator();
 
-const AuthStackNavigator = createStackNavigator({
+function AuthStack() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen name="Login" options={{
+        headerShown: false,
+        animationTypeForReplace: 'pop',
+        gestureEnabled: false
+        }}
+        component={LoginScreen} 
+      />
+      <Stack.Screen name="Sign_up" component={SignupScreen}  options={{
+        title: "Sign Up"
+        }}/>
+      <Stack.Screen name="Reset_password" options={{
+        title: "Reset Password"
+        }} component={ResetPasswordScreen} />
+      <Stack.Screen name="changePassword" options={{
+        title: "Change Password"
+        }} component={ChangePasswordScreen} />
+    </Stack.Navigator>
+  );
+}
 
-  Login: {
-    screen: LoginScreen,
-    navigationOptions: {
-      title: null,
-      headerShown: false,
-      headerStyle: {
-        backgroundColor: 'none',
-      },
-    },
-  },
-    Sign_up: {
-      screen: SignupScreen,
-      navigationOptions: {
-        title: null,
-        backgroundColor: 'none',
-      },
-      headerShown: false,
-    },
-    Reset_password: {
-      screen: ResetPasswordScreen,
-      navigationOptions: {
-        title: null,
-      },
-    },
-});
+function Home() {
+  return (
+    <Stack.Navigator>
+        <Stack.Screen name="Home" options={{
+          headerShown: false,
+          title: "Survey"
+          }}
+          component={HomeScreen} 
+        />
+        
+    </Stack.Navigator>
+  )
+}
 
-const AppNavigator = createStackNavigator({
-  Home: {
-    screen: HomeScreen,
-    navigationOptions: {
-      title: 'Survey',
-      headerShown: false
-    },
-  },
-})
+function AuthCheck() {
+  return(
+    <Stack.Navigator>
+      <Stack.Screen name="AuthLoading" options={{
+        headerShown: false,
+        }}
+        component={AuthLoadingScreen} 
+      />
+      <Stack.Screen name="Home" options={{
+        headerShown: false
+        }} component={Home}  />
+      <Stack.Screen name="Auth" options={{
+        headerShown: false,
+        gestureEnabled: false
+        }} component={AuthStack} />
+    </Stack.Navigator>
+  )
+}
+
+// const AuthStackNavigator = createStackNavigator({
+
+//   Login: {
+//     screen: LoginScreen,
+//     navigationOptions: {
+//       title: null,
+//       headerShown: false,
+//       headerStyle: {
+//         backgroundColor: 'none',
+//       },
+//     },
+//   },
+//     Sign_up: {
+//       screen: SignupScreen,
+//       navigationOptions: {
+//         title: null,
+//         backgroundColor: 'none',
+//       },
+//       headerShown: false,
+//     },
+//     Reset_password: {
+//       screen: ResetPasswordScreen,
+//       navigationOptions: {
+//         title: null,
+//       },
+//     },
+// });
+
+// const AppNavigator = createStackNavigator({
+//   Home: {
+//     screen: HomeScreen,
+//     navigationOptions: {
+//       title: 'Survey',
+//       headerShown: false
+//     },
+//   },
+// })
 
 
-const AuthContainer = createAppContainer(createSwitchNavigator(
-  {
-    AuthLoading: {
-      screen: AuthLoadingScreen,
-      navigationOptions: {
-        headerStyle: { display: "none" },
-        headerLeft: null
-      },
-    },
-    Home: AppNavigator,
-    Auth: AuthStackNavigator,
-  },
-  {
-    initialRouteName: 'AuthLoading',
-  }
-));
+// const AuthContainer = createAppContainer(createSwitchNavigator(
+//   {
+//     AuthLoading: {
+//       screen: AuthLoadingScreen,
+//       navigationOptions: {
+//         headerStyle: { display: "none" },
+//         headerLeft: null
+//       },
+//     },
+//     Home: AppNavigator,
+//     Auth: AuthStackNavigator,
+//   },
+//   {
+//     initialRouteName: 'AuthLoading',
+//   }
+// ));
 
-const AppContainer = createAppContainer(AuthContainer);
+// const AppContainer = createAppContainer(AuthContainer);
 
 const persistConfig = {
   key: "root", // name of the key for storing the data
@@ -109,21 +170,64 @@ function SplashScreen() {
   );
 }
 
+const prefix = Linking.makeUrl("/");
 
-export default () =>
+export default function App() {
+  const ref = React.useRef();
 
-  <Provider store={store}>
-    <PersistGate loading={renderLoading()} persistor={persistor}>
-      <Root>
-        {/* <StatusBar barStyle="dark-content" hidden={true}  /> */}
-        <PaperProvider>
-          <NavigationContainer>
-            <AppContainer />
-          </NavigationContainer>
-        </PaperProvider>
-      </Root>
-    </PersistGate>
-  </Provider>
+  const { getInitialState } = useLinking(ref, {
+    prefixes: [prefix],
+    config: {
+      changePassword: "changePassword/:token"
+    }
+  });
+
+
+  const [isReady, setIsReady] = React.useState(false);
+  const [initialState, setInitialState] = React.useState();
+
+  React.useEffect(() => {
+    Promise.race([
+      getInitialState(),
+      new Promise(resolve =>
+        // Timeout in 150ms if `getInitialState` doesn't resolve
+        // Workaround for https://github.com/facebook/react-native/issues/25675
+        setTimeout(resolve, 150)
+      ),
+    ])
+      .catch(e => {
+        console.error(e);
+      })
+      .then(state => {
+        if (state !== undefined) {
+          console.log(state)
+          setInitialState(state);
+        }
+
+        setIsReady(true);
+      });
+  }, [getInitialState]);
+
+  if (!isReady) {
+    return null;
+  }
+
+  return(
+    <Provider store={store}>
+      <PersistGate loading={renderLoading()} persistor={persistor}>
+        <Root>
+          {/* <StatusBar barStyle="dark-content" hidden={true}  /> */}
+          <PaperProvider>
+            <NavigationContainer initialState={initialState} ref={ref}>
+              <AuthCheck />
+              <FlashMessage position="top" /> 
+            </NavigationContainer>
+          </PaperProvider>
+        </Root>
+      </PersistGate>
+    </Provider>
+  )
+}
 
 
 const styles = StyleSheet.create({
@@ -135,158 +239,3 @@ const styles = StyleSheet.create({
   },
 });
 
-
-// import * as React from 'react';
-// import { AsyncStorage, Button, Text, TextInput, View } from 'react-native';
-// import { NavigationContainer } from '@react-navigation/native';
-// import { createStackNavigator } from '@react-navigation/stack';
-
-// const AuthContext = React.createContext();
-
-// function SplashScreen() {
-//   return (
-//     <View>
-//       <Text>Loading...</Text>
-//     </View>
-//   );
-// }
-
-// function HomeScreen() {
-//   const { signOut } = React.useContext(AuthContext);
-
-//   return (
-//     <View>
-//       <Text>Signed in!</Text>
-//       <Button title="Sign out" onPress={signOut} />
-//     </View>
-//   );
-// }
-
-// function SignInScreen() {
-//   const [username, setUsername] = React.useState('');
-//   const [password, setPassword] = React.useState('');
-
-//   const { signIn } = React.useContext(AuthContext);
-
-//   return (
-//     <View>
-//       <TextInput
-//         placeholder="Username"
-//         value={username}
-//         onChangeText={setUsername}
-//       />
-//       <TextInput
-//         placeholder="Password"
-//         value={password}
-//         onChangeText={setPassword}
-//         secureTextEntry
-//       />
-//       <Button title="Sign in" onPress={() => signIn({ username, password })} />
-//     </View>
-//   );
-// }
-
-// const Stack = createStackNavigator();
-
-// export default function App({ navigation }) {
-//   const [state, dispatch] = React.useReducer(
-//     (prevState, action) => {
-//       switch (action.type) {
-//         case 'RESTORE_TOKEN':
-//           return {
-//             ...prevState,
-//             userToken: action.token,
-//             isLoading: false,
-//           };
-//         case 'SIGN_IN':
-//           return {
-//             ...prevState,
-//             isSignout: false,
-//             userToken: action.token,
-//           };
-//         case 'SIGN_OUT':
-//           return {
-//             ...prevState,
-//             isSignout: true,
-//             userToken: null,
-//           };
-//       }
-//     },
-//     {
-//       isLoading: true,
-//       isSignout: false,
-//       userToken: null,
-//     }
-//   );
-
-//   React.useEffect(() => {
-//     // Fetch the token from storage then navigate to our appropriate place
-//     const bootstrapAsync = async () => {
-//       let userToken;
-
-//       try {
-//         userToken = await AsyncStorage.getItem('userToken');
-//       } catch (e) {
-//         // Restoring token failed
-//       }
-
-//       // After restoring token, we may need to validate it in production apps
-
-//       // This will switch to the App screen or Auth screen and this loading
-//       // screen will be unmounted and thrown away.
-//       dispatch({ type: 'RESTORE_TOKEN', token: userToken });
-//     };
-
-//     bootstrapAsync();
-//   }, []);
-
-//   const authContext = React.useMemo(
-//     () => ({
-//       signIn: async data => {
-//         // In a production app, we need to send some data (usually username, password) to server and get a token
-//         // We will also need to handle errors if sign in failed
-//         // After getting token, we need to persist the token using `AsyncStorage`
-//         // In the example, we'll use a dummy token
-
-//         dispatch({ type: 'SIGN_IN', token: 'dummy-auth-token' });
-//       },
-//       signOut: () => dispatch({ type: 'SIGN_OUT' }),
-//       signUp: async data => {
-//         // In a production app, we need to send user data to server and get a token
-//         // We will also need to handle errors if sign up failed
-//         // After getting token, we need to persist the token using `AsyncStorage`
-//         // In the example, we'll use a dummy token
-
-//         dispatch({ type: 'SIGN_IN', token: 'dummy-auth-token' });
-//       },
-//     }),
-//     []
-//   );
-
-//   return (
-//     <AuthContext.Provider value={authContext}>
-//       <NavigationContainer>
-//         <Stack.Navigator>
-//           {state.isLoading ? (
-//             // We haven't finished checking for the token yet
-//             <Stack.Screen name="Splash" component={SplashScreen} />
-//           ) : state.userToken == null ? (
-//             // No token found, user isn't signed in
-//             <Stack.Screen
-//               name="SignIn"
-//               component={SignInScreen}
-//               options={{
-//                 title: 'Sign in',
-//             // When logging out, a pop animation feels intuitive
-//                 animationTypeForReplace: state.isSignout ? 'pop' : 'push',
-//               }}
-//             />
-//           ) : (
-//             // User is signed in
-//             <Stack.Screen name="Home" component={HomeScreen} />
-//           )}
-//         </Stack.Navigator>
-//       </NavigationContainer>
-//     </AuthContext.Provider>
-//   );
-// }

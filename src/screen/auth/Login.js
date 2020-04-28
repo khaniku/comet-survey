@@ -43,8 +43,8 @@ class LoginScreen extends Component {
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.loginScreenContainer}>
 
-          <View style={styles.loginFormView} style={styles.login_form}>
-            <Image source={logo} style={styles.image}  resizeMode='contain'  />
+          <View style={styles.login_form}>
+            <Image source={logo} style={styles.images}  resizeMode='contain'  />
             {this.state.errors.showError ? (
                 <Text style={ styles.error_text} >{this.state.errors.errorText}</Text>
             ) : null}
@@ -109,7 +109,7 @@ class LoginScreen extends Component {
 
   async login () {
     let user = this.state.user;
-    await fetch("http://159.203.100.198:5000/api/auth/signin", {
+    await fetch("http://localhost:5000/api/auth/signin", {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -129,7 +129,7 @@ class LoginScreen extends Component {
               this.props.User(responseJson);
               this.setState({errors:{ showError: false , errorText: ''}});
               this.props.navigation.navigate('Home');
-            });i
+            });
           }else{
             this.setState({loading: false})
             this.setState({errors:{ showError: true , errorText: 'The Username or Password is incorrect!'}});

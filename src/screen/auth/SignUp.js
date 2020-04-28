@@ -33,9 +33,8 @@ export default class SignupScreen extends Component {
 
     render() {
         return (
-            <KeyboardAwareScrollView style={{backgroundColor: "#fff", flex: 1}}>
+            <KeyboardAwareScrollView style={styles.containerView}>
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                    <View style={styles.containerView}>
                         <View style={styles.login_form}>
                         <Image source={logo} style={styles.image}  resizeMode='contain'  />
                         {this.state.errors.showError ? (
@@ -72,7 +71,6 @@ export default class SignupScreen extends Component {
                                 <ActivityIndicator size="large" color="#fff" style={{ marginTop: 8 }} />
                             </View>}
                         </View>
-                    </View>
                 </TouchableWithoutFeedback>
             </KeyboardAwareScrollView>
         );
